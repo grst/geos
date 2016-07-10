@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<NetworkLink>
+	<name>OpenStreetMap layer</name>
+	<open>1</open>
+	<description><![CDATA[<table width=500><tr><td><img src="http://www.markus-bader.de/MB-Logo_50.gif" align=right>This layer shows the free map data of www.OpenStreetMap.org.<br>
+Please contact me (<a href="http://www.markus-bader.de/">Mail@Markus-Bader.de</a>) for suggestions, questions, etc.
+</td></tr><tr><td>
+<p>
+<hr>
+Some of my other applications:
+<ul>
+<li><a href="http://www.dancepatterns.com/">DANCE - the dance patterns database</a> - for ballroom and latin dance patterns</li>
+<li><a href="http://www.markus-bader.de/MB-Ruler/index.htm">MB-Ruler</a> and <a href="http://www.markus-bader.de/MB-RulerPro/index.php4">MB-Ruler Pro</a> - for measuring distances and angles on the screen</li>
+<li><a href="http://www.markus-bader.de/MB-SearchAndReplace/index.htm">MB-Search&Replace</a></li>
+<li><a href="http://www.markus-bader.de/navigation/stationlistexport.php4">Pre-Trip-Planner</a> - design your tours with Google Maps and export it to your navigation system</li>
+<li><a href="http://www.markus-bader.de/MB-Freeware/index.htm#gps2kml">MB-GPS2KML</a> - convert your GPS NMEA log file to a KML file for Google Earth</li>
+</ul>
+</td></tr></table>]]></description>
+	<Url>
+		<href>http://www.markus-bader.de/osm/OpenStreetMapLayerForGoogleEarth.php4?Color=bbffffff&amp;BaseSide=a.tile.openstreetmap.org&amp;</href>
+		<viewRefreshMode>onStop</viewRefreshMode>
+		<viewRefreshTime>1</viewRefreshTime>
+	</Url>
+</NetworkLink>
+</kml>

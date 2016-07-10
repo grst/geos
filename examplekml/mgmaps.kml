@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Folder>
+  <name>Map Overlays</name>
+  <description><![CDATA[Click <a href="http://www.mgmaps.com/kml">here</a> for details]]></description>
+  <open>1</open>
+  <Folder>
+    <name>Google Maps</name>
+    <open>1</open>
+    <NetworkLink>
+      <name>Google Maps</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=goog_map&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Google Satellite</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=goog_sat&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Google Hybrid (Labels)</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=goog_hyb&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Google Terrain</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=goog_ter&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Google Ditu (China Maps)</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=ditu&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+  </Folder>
+  <Folder>
+    <name>Windows Live Maps</name>
+    <open>1</open>
+    <NetworkLink>
+      <name>Windows Live Maps</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=msn_map&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Windows Live Satellite</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=msn_sat&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Windows Live Hybrid</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=msn_hyb&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Windows Live Terrain</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=msn_ter&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Live Brasil Maps</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=msn_brasil&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+  </Folder>
+  <Folder>
+    <name>Yahoo Maps</name>
+    <open>1</open>
+    <NetworkLink>
+      <name>Yahoo Maps</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=y_map&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Yahoo Satellite</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=y_sat&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Yahoo Hybrid (Labels)</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=y_hyb&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Yahoo India Maps</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=y_map_in&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>Yahoo India Hybrid (Labels)</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=y_hyb_in&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+  </Folder>
+  <Folder>
+    <name>OpenStreetMap</name>
+    <open>1</open>
+    <NetworkLink>
+      <name>OpenStreetMap (Mapnik)</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=osm_m&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>OpenStreetMap (Osmarender)</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=osm_o&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>OpenAerialMap</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=oam&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+    <NetworkLink>
+      <name>OpenCycleMap</name>
+      <visibility>0</visibility>
+      <Link>
+        <href>http://mt.mgmaps.com/kml/maps.php</href><httpQuery>mt=ocm&amp;v=1.7&amp;dx=0&amp;dy=0&amp;trans=0</httpQuery>
+      </Link>
+    </NetworkLink>
+  </Folder>
+</Folder>
+</kml>
