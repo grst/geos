@@ -1,0 +1,1 @@
+http://ec{3}.cdn.ecmaps.de/WmsGateway.ashx.jpg?Experience=kompass&MapStyle=KOMPASS%20Touristik&TileX={0}&TileY={1}&ZoomLevel={2}

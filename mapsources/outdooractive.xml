@@ -1,0 +1,10 @@
+<customMapSource>
+    <name>Outdooractive</name>
+    <minZoom>5</minZoom>
+    <maxZoom>16</maxZoom>
+    <tileType>PNG</tileType>
+    <tileUpdate>IfNoneMatch</tileUpdate>
+    <url>http://s2.outdooractive.com/portal/map/{$z}/{$x}/{$y}.png</url>
+    <backgroundColor>#000000</backgroundColor>
+    <ignoreErrors>true</ignoreErrors>
+</customMapSource>
