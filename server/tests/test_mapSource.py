@@ -9,7 +9,12 @@ from mapsource import MapSource
 class TestMapSource(TestCase):
   def test_from_xml(self):
     ms = MapSource.from_xml("../../mapsources/outdooractive.xml")
-    self.assertEquals(ms.name, "Outdooractive")
-    self.assertEquals(ms.min_zoom, 5)
-    self.assertEquals(ms.max_zoom, 16)
-    self.assertEquals(ms.tile_url, "http://s2.outdooractive.com/portal/map/{$z}/{$x}/{$y}.png")
+    self.assertEquals("Outdooractive", ms.name)
+    self.assertEquals(5, ms.min_zoom)
+    self.assertEquals(16, ms.max_zoom)
+    self.assertEquals("http://s2.outdooractive.com/portal/map/{$z}/{$x}/{$y}.png", ms.tile_url)
+
+  def test_format_url(self):
+    ms = MapSource.from_xml("../../mapsources/outdooractive.xml")
+    self.assertEquals("http://s2.outdooractive.com/portal/map/42/43/44.png", ms.get_tile_url(42, 43, 44), )
+

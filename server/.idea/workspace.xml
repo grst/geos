@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4197fa58-e896-4a72-817b-3a029266d4a2" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/test_mapSource.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server.py" afterPath="$PROJECT_DIR$/server.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tests/test_mapSource.py" afterPath="$PROJECT_DIR$/tests/test_mapSource.py" />
     </list>
     <ignored path="server.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -19,7 +17,9 @@
   <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/server$Nosetest_TestMapSource_test_from_xml.coverage" NAME="Nosetest TestMapSource.test_from_xml Coverage Results" MODIFIED="1468576285009" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/server$Nosetests_in_TestMapSource.coverage" NAME="Nosetests in TestMapSource Coverage Results" MODIFIED="1468577097386" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
     <SUITE FILE_PATH="coverage/server$Nosetests_in_test_mapSource.coverage" NAME="Nosetests in test_mapSource Coverage Results" MODIFIED="1468576377015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
+    <SUITE FILE_PATH="coverage/server$Nosetest_TestMapSource_test_format_url.coverage" NAME="Nosetest TestMapSource.test_format_url Coverage Results" MODIFIED="1468577092564" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/tests" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -40,21 +40,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="mapsource.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="mapsource.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mapsource.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.21311475">
+            <state vertical-scroll-proportion="0.0">
               <caret line="27" column="11" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="test_mapSource.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="test_mapSource.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests/test_mapSource.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-6.923077">
-              <caret line="10" column="45" selection-start-line="10" selection-start-column="45" selection-end-line="10" selection-end-column="45" />
+            <state vertical-scroll-proportion="0.24657534">
+              <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -91,8 +91,8 @@
         <option value="$USER_HOME$/Downloads/test2/test2.py" />
         <option value="$PROJECT_DIR$/server.py" />
         <option value="$PROJECT_DIR$/test_mapSource.py" />
-        <option value="$PROJECT_DIR$/tests/test_mapSource.py" />
         <option value="$PROJECT_DIR$/mapsource.py" />
+        <option value="$PROJECT_DIR$/tests/test_mapSource.py" />
       </list>
     </option>
   </component>
@@ -180,7 +180,7 @@
       <recent name="$PROJECT_DIR$/tests" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Nosetests in test_mapSource">
+  <component name="RunManager" selected="Python tests.Nosetests in TestMapSource">
     <configuration default="false" name="Nosetests in test_mapSource" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -219,6 +219,50 @@
       <option name="METHOD_NAME" value="test_from_xml" />
       <option name="FOLDER_NAME" value="" />
       <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Nosetest TestMapSource.test_format_url" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="server" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_mapSource.py" />
+      <option name="CLASS_NAME" value="TestMapSource" />
+      <option name="METHOD_NAME" value="test_format_url" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_METHOD" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Nosetests in TestMapSource" type="tests" factoryName="Nosetests" temporary="true" nameIsGenerated="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="server" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_mapSource.py" />
+      <option name="CLASS_NAME" value="TestMapSource" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_CLASS" />
       <option name="PATTERN" value="" />
       <option name="USE_PATTERN" value="false" />
       <option name="PARAMS" value="" />
@@ -436,15 +480,19 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
     </configuration>
-    <list size="3">
+    <list size="5">
       <item index="0" class="java.lang.String" itemvalue="Python.server" />
       <item index="1" class="java.lang.String" itemvalue="Python tests.Nosetests in test_mapSource" />
       <item index="2" class="java.lang.String" itemvalue="Python tests.Nosetest TestMapSource.test_from_xml" />
+      <item index="3" class="java.lang.String" itemvalue="Python tests.Nosetest TestMapSource.test_format_url" />
+      <item index="4" class="java.lang.String" itemvalue="Python tests.Nosetests in TestMapSource" />
     </list>
     <recent_temporary>
-      <list size="2">
-        <item index="0" class="java.lang.String" itemvalue="Python tests.Nosetests in test_mapSource" />
-        <item index="1" class="java.lang.String" itemvalue="Python tests.Nosetest TestMapSource.test_from_xml" />
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python tests.Nosetests in TestMapSource" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.Nosetest TestMapSource.test_format_url" />
+        <item index="2" class="java.lang.String" itemvalue="Python tests.Nosetests in test_mapSource" />
+        <item index="3" class="java.lang.String" itemvalue="Python tests.Nosetest TestMapSource.test_from_xml" />
       </list>
     </recent_temporary>
   </component>
@@ -462,8 +510,14 @@
     <servers />
   </component>
   <component name="TestHistory">
+    <history-entry file="Nosetest_TestMapSource_test_format_url - 2016.07.15 at 12h 04m 53s.xml">
+      <configuration name="Nosetest TestMapSource.test_format_url" configurationId="tests" />
+    </history-entry>
     <history-entry file="Nosetest_TestMapSource_test_from_xml - 2016.07.15 at 11h 51m 25s.xml">
       <configuration name="Nosetest TestMapSource.test_from_xml" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Nosetests_in_TestMapSource - 2016.07.15 at 12h 04m 58s.xml">
+      <configuration name="Nosetests in TestMapSource" configurationId="tests" />
     </history-entry>
     <history-entry file="Nosetests_in_test_mapSource - 2016.07.15 at 11h 33m 53s.xml">
       <configuration name="Nosetests in test_mapSource" configurationId="tests" />
@@ -571,21 +625,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tests/test_mapSource.py">
+    <entry file="file://$PROJECT_DIR$/mapsource.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.923077">
-          <caret line="10" column="45" selection-start-line="10" selection-start-column="45" selection-end-line="10" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
+        <state vertical-scroll-proportion="0.0">
+          <caret line="27" column="11" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mapsource.py">
+    <entry file="file://$PROJECT_DIR$/tests/test_mapSource.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.21311475">
-          <caret line="27" column="11" selection-start-line="27" selection-start-column="11" selection-end-line="27" selection-end-column="11" />
-          <folding />
+        <state vertical-scroll-proportion="0.24657534">
+          <caret line="8" column="19" selection-start-line="8" selection-start-column="19" selection-end-line="8" selection-end-column="19" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
