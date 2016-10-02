@@ -1,0 +1,10 @@
+<customMapSource>
+    <name>Geoportail France</name>
+    <minZoom>5</minZoom>
+    <maxZoom>16</maxZoom>
+    <tileType>PNG</tileType>
+    <tileUpdate>IfNoneMatch</tileUpdate>
+    <url>http://wxs.ign.fr/j5tcdln4ya4xggpdu4j0f0cn/geoportail/wmts?SERVICE=WMTS&amp;REQUEST=GetTile&amp;VERSION=1.0.0&amp;LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN25TOUR&amp;STYLE=normal&amp;TILEMATRIXSET=PM&amp;TILEMATRIX={$z}&amp;TILEROW={$y}&amp;TILECOL={$x}&amp;FORMAT=image%2Fjpeg</url>
+    <backgroundColor>#000000</backgroundColor>
+    <ignoreErrors>true</ignoreErrors>
+</customMapSource>
