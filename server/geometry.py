@@ -9,7 +9,6 @@ __author__ = "Martin Loetzsch"
 __licence__ = "Apache 2.0"
 
 
-
 _earthradius = 6378137.0
 
 _tilesize = _initial_resolution = _originshift = None
@@ -33,8 +32,7 @@ def init_geometry(tilesize=256.0):
 init_geometry()
 
 
-
-class GeographicCoordinate(object):
+class GeographicCoordinate:
     """
     Represents a WGS84 Datum
     x: longitude in degrees
@@ -64,7 +62,8 @@ class GeographicCoordinate(object):
         return "<lon: " + str(self.lon) + ", lat: " + str(self.lat) + ", height: " \
                 + str(self.height) + ">"
 
-class GeographicBB ():
+
+class GeographicBB:
     """ A bounding box defined by two geographic coordinates """
     def __init__(self, min_lon=None, min_lat=None, max_lon=None, max_lat=None):
         self.min = GeographicCoordinate(min_lon, min_lat)
@@ -93,8 +92,7 @@ class GeographicBB ():
         return "<geographic min: " + str(self.min) + ", max: " + str(self.max) + ">"
 
 
-
-class CartesianCoordinate(object):
+class CartesianCoordinate:
     """ Represents a coordinate in a geocentric Cartesian coordinate system """
     def __init__(self, x, y, z):
         self.x = x
@@ -111,8 +109,7 @@ class CartesianCoordinate(object):
         return "<x: " + str(self.x) + ", y: " + str(self.y) + ", z: " + str(self.z) + ">"
 
 
-
-class MercatorCoordinate(object):
+class MercatorCoordinate:
     """ Represents a coordinate in Spherical Mercator EPSG:900913 """
     def __init__(self, x=None, y=None):
         self.x = x
@@ -120,8 +117,10 @@ class MercatorCoordinate(object):
 
     def to_tile(self, zoom):
         res = _initialresolution / (2 ** zoom)
+
         def transform(x):
             return int(math.ceil(((x + _originshift) / res) / _tilesize) - 1)
+
         return TileCoordinate(zoom, transform(self.x),
                               (2 ** zoom - 1) - transform(self.y))
 
@@ -136,7 +135,7 @@ class MercatorCoordinate(object):
         return "<x: " + str(self.x) + ", y: " + str(self.y) + ">"
 
 
-class MercatorBB ():
+class MercatorBB:
     """ A bounding box defined by two mercator coordinates """
 
     def __init__(self, _min=MercatorCoordinate, _max=MercatorCoordinate):
@@ -153,8 +152,7 @@ class MercatorBB ():
         return "<mercator min: " + str(self.min) + ", max: " + str(self.max) + ">"
 
 
-
-class TileCoordinate(object):
+class TileCoordinate:
     """ Represents a coordinate Tile units """
     def __init__(self, zoom, x=None, y=None):
         self.zoom = zoom
@@ -193,8 +191,7 @@ class TileCoordinate(object):
         return "<zoom: " + str(self.zoom) + ", x: " + str(self.x) + ", y: " + str(self.y) + ">"
 
 
-
-class TileBB ():
+class TileBB:
     """ A bounding box defined by two tile coordinates """
 
     def __init__(self, zoom, min_x, min_y, max_x, max_y):
@@ -214,7 +211,6 @@ class TileBB ():
         else:
             return []
 
-
     def intersections(self, other):
         intersections = []
         i = self.intersection(other)
@@ -229,7 +225,6 @@ class TileBB ():
             (self.min.x <= tile.x <= self.max.x or \
              (self.max.x > 2 ** tile.zoom - 1 and \
               0 <= tile.x <= self.max.x % (2 ** tile.zoom)))
-
 
     def __str__(self):
         return "<tile min: " + str(self.min) + ", max: " + str(self.max) + ">"
