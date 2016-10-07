@@ -31,7 +31,7 @@ def kml_master():
         KML.NetworkLink(
             KML.name(map.name),
             KML.Link(
-                KML.href(get_map_url(map, 5, 10, 15)),
+                KML.href(get_map_url(map, 0, 0, 0)),
                 KML.viewRefreshMode("onRegion")
             )
         )
@@ -41,8 +41,8 @@ def kml_master():
 
 def lat_lon_box(geo_bb):
     return (
-        KML.north(geo_bb.min.lat),
-        KML.south(geo_bb.max.lat),
+        KML.north(geo_bb.max.lat),
+        KML.south(geo_bb.min.lat),
         KML.east(geo_bb.max.lon),
         KML.west(geo_bb.min.lon)
     )
@@ -102,6 +102,7 @@ def kml_region(map_source, z, x, y):
     map = maps['osm.xml']
     kml_doc = KML.kml(
         KML.Document(
+            KML.name("doc_{}_{}_{}".format(z, x, y)),
             KML.Region(
                 KML_LOD,
                 KML.LatLonAltBox(
@@ -113,20 +114,20 @@ def kml_region(map_source, z, x, y):
             network_link(map, tile_coords, "sw"),
             network_link(map, tile_coords, "nw"),
             KML.GroundOverlay(
-                KML.drawOrder(5),
+                KML.name("ge_{}_{}_{}".format(z, x, y)),
+                KML.drawOrder(z),
                 KML.Icon(
                     KML.href(map.get_tile_url(z, x, y))
                 ),
                 KML.LatLonBox(
                     *lat_lon_box(bbox)
                 ),
-                KML.visibility("1")
             )
         )
     )
-    if z > 3:
-        # temporary recursion limit. 
-        kml_doc = KML.Document()
+    # if z > 3:
+    #     # temporary recursion limit.
+    #     kml_doc = KML.Document()
     return Response(etree.tostring(kml_doc, pretty_print=True), mimetype="application/vnd.google-earth.kml+xml")
 
 
