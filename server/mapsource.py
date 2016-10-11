@@ -32,15 +32,15 @@ class MapSource(object):
             min_zoom: minimal allowed zoom level of the map
             max_zoom: maximal allowed zoom level of the map
 
-        >>> ms = MapSource.from_xml("../mapsources/outdooractive.xml")
+        >>> ms = MapSource.from_xml("mapsources/osm.xml")
         >>> ms.name
-        'Outdooractive'
+        'OSM Mapnik'
         >>> ms.min_zoom
-        5
+        0
         >>> ms.max_zoom
-        16
+        18
         >>> ms.tile_url
-        'http://s2.outdooractive.com/portal/map/{$z}/{$x}/{$y}.png'
+        'http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png'
         """
         self.id = id
         self.name = name
@@ -52,9 +52,9 @@ class MapSource(object):
         """
         Fill the placeholders of the tile url with zoom, x and y.
 
-        >>> ms = MapSource.from_xml("../mapsources/outdooractive.xml")
+        >>> ms = MapSource.from_xml("mapsources/osm.xml")
         >>> ms.get_tile_url(42, 43, 44)
-        'http://s2.outdooractive.com/portal/map/42/43/44.png'
+        'http://tile.openstreetmap.org/42/43/44.png'
         """
         return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
 

@@ -20,6 +20,10 @@ class KMLBuilder:
 
 
 class KMLMaster(KMLBuilder):
+    """Create a KML Master document that
+    contains NetworkLinks to all Maps
+    in the mapsource directory"""
+
     def __init__(self, mapsources):
         kml_elements = []
         for map_s in mapsources:
@@ -36,7 +40,11 @@ class KMLMaster(KMLBuilder):
 
 
 class KMLRegion(KMLBuilder):
-    QUADS =  ['ne', 'se', 'sw', 'nw']
+    """Create a KML that displays the actual tiles
+    as GroundOverlay and contains NetworkLinks
+    to the next LevelOfDetail"""
+
+    QUADS = ['ne', 'se', 'sw', 'nw']
 
     def lat_lon_box(self, geo_bb):
         return (
@@ -116,7 +124,7 @@ class KMLRegion(KMLBuilder):
         bbox = self.tile_coords.geographic_bounds()
 
         kml_elems = []
-        kml_elems.append(KML.name("doc_{}_{}_{}".format(z, x, y)))
+        kml_elems.append(KML.name("DOC_{}_{}_{}".format(z, x, y)))
         kml_elems.extend(self.make_child_links())
         kml_elems.append(self.ground_overlay())
 
