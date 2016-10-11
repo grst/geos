@@ -2,21 +2,33 @@ from pykml.factory import KML_ElementMaker as KML
 from geometry import *
 from lxml import etree
 
-SERVER_HOST = "127.0.0.1:5000"
-
-
-def get_map_url(map, z, x, y):
-    return "http://{}/maps/{}/{}/{}/{}.kml".format(SERVER_HOST, map.id, z, x, y)
-
 
 class KMLBuilder:
     MIME_TYPE = "application/vnd.google-earth.kml+xml"
 
-    def __init__(self):
-        self.kml_doc = KML.kml()
+    def get_map_url(self, map, z, x, y):
+        return self.url_formatter("/maps/{}/{}/{}/{}.kml".format(map.id, z, x, y))
+
+    def add_elem(self, kml_elem):
+        self.kml_doc.append(kml_elem)
+
+    def add_elems(self, kml_elems):
+        for kml_elem in kml_elems:
+            self.add_elem(kml_elem)
+
+    def __init__(self, url_formatter=lambda x: x):
+        """
+
+        Args:
+            url_formatter: Callback function for creating an absolute
+             URL from a relative paths
+        """
+        self.url_formatter = url_formatter
+        self.kml_doc = KML.Document()
+        self.kml_root = KML.kml(self.kml_doc)
 
     def get_kml(self):
-        return etree.tostring(self.kml_doc, pretty_print=True, xml_declaration=True)
+        return etree.tostring(self.kml_root, pretty_print=True, xml_declaration=True)
 
 
 class KMLMaster(KMLBuilder):
@@ -24,19 +36,24 @@ class KMLMaster(KMLBuilder):
     contains NetworkLinks to all Maps
     in the mapsource directory"""
 
-    def __init__(self, mapsources):
-        kml_elements = []
+    def __init__(self, mapsources, url_formatter):
+        super().__init__(url_formatter)
         for map_s in mapsources:
-            kml_elements.append(
+            self.add_elem(
                 KML.NetworkLink(
                     KML.name(map_s.name),
                     KML.Link(
-                        KML.href(get_map_url(map_s, 0, 0, 0)),
+                        KML.href(self.get_map_url(map_s, 0, 0, 0)),
                         KML.viewRefreshMode("onRegion")
                     )
                 )
             )
-        self.kml_doc = KML.kml(*kml_elements)
+
+
+class KMLMapRoot(KMLBuilder):
+    """Create root Document for an
+    individual Map. Can be used as standalone KML
+    to display that map only"""
 
 
 class KMLRegion(KMLBuilder):
@@ -46,7 +63,10 @@ class KMLRegion(KMLBuilder):
 
     QUADS = ['ne', 'se', 'sw', 'nw']
 
-    def lat_lon_box(self, geo_bb):
+    def make_lat_lon_box(self):
+        """Create the north/south/east/west tags
+        for a LatLonBox or LatLonAltBox Bounding Box"""
+        geo_bb = self.tile_coords.geographic_bounds()
         return (
             KML.north(geo_bb.max.lat),
             KML.south(geo_bb.min.lat),
@@ -54,21 +74,34 @@ class KMLRegion(KMLBuilder):
             KML.west(geo_bb.min.lon)
         )
 
-    def lod(self, min_lod_pixels=128, max_lod_pixels=-1):
+    @staticmethod
+    def make_level_of_detail(min_lod_pixels=128, max_lod_pixels=-1):
+        """Create the KML LevelOfDetail (LOD) Tag"""
         return KML.Lod(
             KML.minLodPixels(min_lod_pixels),
             KML.maxLodPixels(max_lod_pixels)
         )
 
-    def kml_region(self):
+    def make_region(self):
+        """Create the KML Region tag with the appropriate
+        geographic coordinates"""
         return KML.Region(
-            self.lod(),
+            self.make_level_of_detail(),
             KML.LatLonAltBox(
-                *self.lat_lon_box(self.tile_coords.geographic_bounds())
+                *self.make_lat_lon_box()
             )
         )
 
     def get_quad_coords(self, quad):
+        """Calculate the TileCoordinates
+        for the next level of Detail.
+
+        Args:
+            quad: direction, either ne, nw, sw, se
+
+        Returns:
+            TileCoordinates
+        """
         assert quad in self.QUADS
 
         z = self.tile_coords.zoom + 1
@@ -86,24 +119,25 @@ class KMLRegion(KMLBuilder):
 
         return TileCoordinate(z, x, y)
 
-    def network_link(self, tile_coords):
+    def make_network_link(self, tile_coords):
         return KML.NetworkLink(
             KML.name("NL_{}_{}_{}".format(tile_coords.zoom, tile_coords.x, tile_coords.y)),
-            self.kml_region(),
+            self.make_region(),
             KML.Link(
-                KML.href(get_map_url(self.mapsource, tile_coords.zoom, tile_coords.x, tile_coords.y)),
+                KML.href(self.get_map_url(self.mapsource, tile_coords.zoom, tile_coords.x, tile_coords.y)),
                 KML.viewRefreshMode("onRegion")
             )
         )
 
     def make_child_links(self):
         nls = []
-        for quad in  self.QUADS:
-            quad_coords = self.get_quad_coords(quad)
-            nls.append(self.network_link(quad_coords))
+        if self.tile_coords.zoom < self.mapsource.max_zoom:
+            for quad in self.QUADS:
+                quad_coords = self.get_quad_coords(quad)
+                nls.append(self.make_network_link(quad_coords))
         return nls
 
-    def ground_overlay(self):
+    def make_ground_overlay(self):
         z = self.tile_coords.zoom
         x = self.tile_coords.x
         y = self.tile_coords.y
@@ -114,22 +148,17 @@ class KMLRegion(KMLBuilder):
                 KML.href(self.mapsource.get_tile_url(z, x, y))
             ),
             KML.LatLonBox(
-                *self.lat_lon_box(self.tile_coords.geographic_bounds())
+                *self.make_lat_lon_box()
             ),
         )
 
-    def __init__(self, mapsource, z, x, y):
+    def __init__(self, mapsource, z, x, y, url_formatter):
+        super().__init__(url_formatter)
         self.tile_coords = TileCoordinate(z, x, y)
         self.mapsource = mapsource
-        bbox = self.tile_coords.geographic_bounds()
 
-        kml_elems = []
-        kml_elems.append(KML.name("DOC_{}_{}_{}".format(z, x, y)))
-        kml_elems.extend(self.make_child_links())
-        kml_elems.append(self.ground_overlay())
+        self.add_elem(KML.name("DOC_{}_{}_{}".format(z, x, y)))
+        self.add_elems(self.make_child_links())
+        self.add_elem(self.make_ground_overlay())
 
-        self.kml_doc = KML.kml(
-            KML.Document(
-                *kml_elems
-            )
-        )
+
