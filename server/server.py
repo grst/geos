@@ -1,6 +1,5 @@
 from flask import Flask, Response, render_template, g
 import argparse
-import os
 import mapsource
 import pkg_resources
 from kml import KMLMaster, KMLRegion
@@ -37,8 +36,7 @@ def kml_region(map_source, z, x, y):
     kml_doc = KMLRegion(map, z, x, y, url_formatter=abs_url)
     return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
 
-
-if __name__ == '__main__':
+def run_app():
     argp = argparse.ArgumentParser("KML Overlay generator. ")
     argp.add_argument("-m", "--mapsource", required=False,
                       default=pkg_resources.resource_filename(__name__, "mapsources"),
@@ -49,3 +47,5 @@ if __name__ == '__main__':
     app.config['mapsources'] = mapsource.load_maps(args.mapsource)
     app.run()
 
+if __name__ == '__main__':
+    run_app()

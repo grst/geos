@@ -1,0 +1,3 @@
+include server/mapsources
+include server/static
+include server/templates
