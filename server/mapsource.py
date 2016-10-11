@@ -4,10 +4,14 @@ from os.path import basename
 
 
 def load_maps(dir):
+    # TODO make recursive
     maps = {}
     for xml_file in glob(dir + "/*.xml"):
         map = MapSource.from_xml(xml_file)
-        maps[map.id] = map
+        if map.id in maps:
+            raise MapSourceException("duplicate map id: {} in file {}".format(map.id, xml_file))
+        else:
+            maps[map.id] = map
     return maps
 
 
@@ -68,7 +72,9 @@ class MapSource(object):
             xml_path: path to the MOBAC mapsource xml file.
 
         Returns:
-            MapSource object.
+            MapSource object. Information is read from the xml
+            <id>, <name>, <url>, <minZoom>, <maxZoom> tags. If <id> is
+            not available it defaults to the xml file basename.
 
         Raises:
             MapSourceException: when the xml file could not be parsed properly.
@@ -80,7 +86,8 @@ class MapSource(object):
             attrs[elem.tag] = elem.text
 
         try:
-            return MapSource(basename(xml_path), attrs['name'], attrs['url'],
+            map_id = attrs.get('id', basename(xml_path))
+            return MapSource(map_id, attrs['name'], attrs['url'],
                              int(attrs['minZoom']), int(attrs['maxZoom']))
         except KeyError:
             raise MapSourceException("Mapsource XML does not contain all required attributes. ")
