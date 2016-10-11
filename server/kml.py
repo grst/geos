@@ -125,7 +125,3 @@ class KMLRegion(KMLBuilder):
                 *kml_elems
             )
         )
-        #
-        # if z > 7:
-        #     # temporary recursion limit.
-        #     self.kml_doc = KML.Document()
