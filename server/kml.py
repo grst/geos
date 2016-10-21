@@ -5,68 +5,51 @@ import itertools
 
 # TODO Documentation!
 # TODO Unittesting
+# TODO something with the regions is wrong (loads way too much)
+"""
+it would proabably be more pythonic if
+I removed all map specific functions from
+KML Builder and turned them into module
+level functions
+"""
+
+LOG_R = -1
+assert LOG_R in range(-1, 3)  # log ratio for tiles/network links
 
 
-class KMLBuilder:
-    MIME_TYPE = "application/vnd.google-earth.kml+xml"
-    TILES_PER_ROW_PER_REGION = 2
+def kml_lat_lon_box(geo_bb):
+    """Create the north/south/east/west tags
+    for a LatLonBox or LatLonAltBox Bounding Box"""
+    return (
+        KML.north(geo_bb.max.lat),
+        KML.south(geo_bb.min.lat),
+        KML.east(geo_bb.max.lon),
+        KML.west(geo_bb.min.lon)
+    )
 
-    def get_map_url(self, map, z, x, y):
-        return self.url_formatter("/maps/{}/{}/{}/{}.kml".format(map.id, z, x, y))
 
-    def add_elem(self, kml_elem):
-        self.kml_doc.append(kml_elem)
+def kml_lod(self, min_lod_pixels=128, max_lod_pixels=-1):
+    """Create the KML LevelOfDetail (LOD) Tag"""
+    # TODO: min_lod_pixels should be dependent on tiles per row
+    return KML.Lod(
+        KML.minLodPixels(min_lod_pixels),
+        KML.maxLodPixels(max_lod_pixels))
 
-    def add_elems(self, kml_elems):
-        for kml_elem in kml_elems:
-            self.add_elem(kml_elem)
-
-    @staticmethod
-    def make_lat_lon_box(geo_bb):
-        """Create the north/south/east/west tags
-        for a LatLonBox or LatLonAltBox Bounding Box"""
-        return (
-            KML.north(geo_bb.max.lat),
-            KML.south(geo_bb.min.lat),
-            KML.east(geo_bb.max.lon),
-            KML.west(geo_bb.min.lon)
+def kml_region(region_coords):
+    """Create the KML Region tag with the appropriate
+    geographic coordinates"""
+    p1 = region_coords.to_geographic()
+    p2 = TileCoordinate(region_coords.zoom, region_coords.x + self.TILES_PER_ROW_PER_REGION,
+                        region_coords.y + self.TILES_PER_ROW_PER_REGION).to_geographic()
+    bbox =
+    return KML.Region(
+        self.make_level_of_detail(),
+        KML.LatLonAltBox(
+            *self.make_lat_lon_box(bbox)
         )
+    )
 
-    def make_level_of_detail(self, min_lod_pixels=128, max_lod_pixels=-1):
-        """Create the KML LevelOfDetail (LOD) Tag"""
-        # TODO: min_lod_pixels should be dependent on tiles per row
-        return KML.Lod(
-            KML.minLodPixels(min_lod_pixels),
-            KML.maxLodPixels(max_lod_pixels))
-
-    def make_region(self, tile_coords):
-        """Create the KML Region tag with the appropriate
-        geographic coordinates"""
-        p1 = tile_coords.to_geographic()
-        p2 = TileCoordinate(tile_coords.zoom, tile_coords.x + self.TILES_PER_ROW_PER_REGION,
-                            tile_coords.y + self.TILES_PER_ROW_PER_REGION)
-        bbox = GeographicBB(p1.lon, p2.lat, p2.long, p1.lat)
-        return KML.Region(
-            self.make_level_of_detail(),
-            KML.LatLonAltBox(
-                *self.make_lat_lon_box(bbox)
-            )
-        )
-
-    @staticmethod
-    def zoom_in(tile_coords):
-        return TileCoordinate(zoom=tile_coords.zoom + 1,
-                              x=tile_coords.x * 2,
-                              y=tile_coords.y * 2)
-
-    @staticmethod
-    def tileiter(tile_coords, ncol, step=1):
-        for x, y in itertools.product(range(tile_coords.x, tile_coords.x + ncol, step),
-                                      range(tile_coords.y, tile_coords.y + ncol, step)):
-            yield TileCoordinate(zoom=tile_coords.zoom,
-                                 x=x, y=y)
-
-    def make_network_link(self, tile_coords):
+    def make_network_link(self, tile_coords, visible=True):
         return KML.NetworkLink(
             KML.name("NL_{}_{}_{}".format(tile_coords.zoom, tile_coords.x, tile_coords.y)),
             self.make_region(tile_coords),
@@ -91,6 +74,11 @@ class KMLBuilder:
             ),
         )
 
+
+
+class KMLMap:
+    MIME_TYPE = "application/vnd.google-earth.kml+xml"
+
     def __init__(self, url_formatter=lambda x: x):
         """
 
@@ -102,11 +90,38 @@ class KMLBuilder:
         self.kml_doc = KML.Document()
         self.kml_root = KML.kml(self.kml_doc)
 
+    def get_map_url(self, map, z=None, x=None, y=None):
+        if z is None:
+            # request root document
+            return self.url_formatter("/maps/{}.kml".format(map.id))
+        else:
+            return self.url_formatter("/maps/{}/{}/{}/{}.kml".format(map.id, z, x, y))
+
+    def add_elem(self, kml_elem):
+        """Add an element to the KMLDocument"""
+        self.kml_doc.append(kml_elem)
+
+    def add_elems(self, kml_elems):
+        """
+        Add elements from an iterator.
+
+        Args:
+            kml_elems: any iterator containing KML elements.
+                Can also be a KMLMap instance
+        """
+        for kml_elem in kml_elems:
+            self.add_elem(kml_elem)
+
     def get_kml(self):
+        """Return the KML Document as formatted kml/xml"""
         return etree.tostring(self.kml_root, pretty_print=True, xml_declaration=True)
 
+    def __iter__(self):
+        yield from self.kml_doc
 
-class KMLMaster(KMLBuilder):
+
+
+class KMLMaster(KMLMap):
     """Create a KML Master document that
     contains NetworkLinks to all Maps
     in the mapsource directory"""
@@ -118,14 +133,15 @@ class KMLMaster(KMLBuilder):
                 KML.NetworkLink(
                     KML.name(map_s.name),
                     KML.Link(
-                        KML.href(self.get_map_url(map_s, 0, 0, 0)),
+                        KML.href(self.get_map_url(map_s)),
                         KML.viewRefreshMode("onRegion")
-                    )
+                    ),
+                    KML.visibility(0)
                 )
             )
 
 
-class KMLMapRoot(KMLBuilder):
+class KMLMapRoot(KMLMap):
     """Create root Document for an
     individual Map. Can be used as standalone KML
     to display that map only"""
@@ -136,35 +152,42 @@ class KMLMapRoot(KMLBuilder):
 
         z = mapsource.min_zoom
         n_tiles = 2 ** z
-        base_coord = TileCoordinate(z, 0, 0)
-
+        r = 2 ** self.LOG_R
+        n_regions = min(n_tiles, n_tiles/r)
         self.add_elem(KML.name("{} root".format(mapsource.name)))
-
-        for current_tile in self.tileiter(self.zoom_in(base_coord), ncol=n_tiles, step=self.TILES_PER_ROW_PER_REGION):
-            self.add_elem(self.make_network_link(current_tile))
-        for current_tile in self.tileiter(base_coord, ncol=n_tiles):
-            self.add_elem(self.make_ground_overlay(current_tile))
+        for x, y in griditer(0, 0, n_regions):
+            self.add_elems(KMLRegion(z, x, y))
 
 
-class KMLRegion(KMLBuilder):
+class KMLRegion(KMLMap):
     """Create a KML that displays the actual tiles
     as GroundOverlay and contains NetworkLinks
-    to the next LevelOfDetail"""
+    to the next LevelOfDetail.
 
-    def make_child_links(self):
-        nls = []
-        if self.tile_coords.zoom < self.mapsource.max_zoom:
-            for nl_coords in self.tileiter(self.zoom_in(self.tile_coords), 2 * self.TILES_PER_ROW_PER_REGION,
-                                           step=self.TILES_PER_ROW_PER_REGION):
-                nls.append(self.make_network_link(nl_coords))
-        return nls
+    A region contains a certain number of GroundOverlays and
+    a certain number of NetworkLinks for a given zoom level.
+    A Region is identified by it's tile in the top left corner
+    and a zoom level.
 
-    def __init__(self, mapsource, z, x, y, url_formatter):
+    """
+
+    def add_ground_overlay(self, tile_coord):
+        pass
+
+    def add_network_link(self):
+        pass
+
+    def __init__(self, mapsource, z, x, y, url_formatter, log_r=LOG_R):
         super().__init__(url_formatter)
         self.tile_coords = TileCoordinate(z, x, y)
         self.mapsource = mapsource
 
+        rc = RegionCoordinate(z, x, y, log_r)
+
         self.add_elem(KML.name("DOC_{}_{}_{}".format(z, x, y)))
-        self.add_elems(self.make_child_links())
-        for overlay_tile in self.tileiter(self.tile_coords):
-            self.add_elem(self.make_ground_overlay(overlay_tile))
+
+        for tc in rc.get_tiles():
+            self.add_ground_overlay(tc)
+        for rc_child in rc.zoom_in():
+            self.add_network_link(rc_child)
+

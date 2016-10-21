@@ -1,17 +1,17 @@
 import xml.etree.ElementTree
-from glob import glob
-from os.path import basename
+import os
 
 
-def load_maps(dir):
-    # TODO make recursive
+def load_maps(maps_dir):
     maps = {}
-    for xml_file in glob(dir + "/*.xml"):
-        map = MapSource.from_xml(xml_file)
-        if map.id in maps:
-            raise MapSourceException("duplicate map id: {} in file {}".format(map.id, xml_file))
-        else:
-            maps[map.id] = map
+    for root, dirnames, filenames in os.walk(maps_dir):
+        for filename in filenames:
+            if filename.endswith(".xml"):
+                map = MapSource.from_xml(os.path.join(root, filename))
+                if map.id in maps:
+                    raise MapSourceException("duplicate map id: {} in file {}".format(map.id, xml_file))
+                else:
+                    maps[map.id] = map
     return maps
 
 
@@ -86,7 +86,7 @@ class MapSource(object):
             attrs[elem.tag] = elem.text
 
         try:
-            map_id = attrs.get('id', basename(xml_path))
+            map_id = attrs.get('id', os.path.basename(xml_path))
             return MapSource(map_id, attrs['name'], attrs['url'],
                              int(attrs['minZoom']), int(attrs['maxZoom']))
         except KeyError:

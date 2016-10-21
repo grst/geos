@@ -2,18 +2,14 @@ from flask import Flask, Response, render_template, g
 import argparse
 import mapsource
 import pkg_resources
-from kml import KMLMaster, KMLRegion
+from kml import *
 
-# default_settings = {
-#     "SERVER_NAME":  "localhost:5000",
-#     "DEBUG": True
-# }
 
 app = Flask(__name__)
 
 
 def abs_url(rel_url):
-    """Create n absolute url with respect to SERVER_NAME"""
+    """Create an absolute url with respect to SERVER_NAME"""
     rel_url = rel_url.lstrip("/")
     return "{}://{}/{}".format(app.config["PREFERRED_URL_SCHEME"],
                                app.config["SERVER_NAME"], rel_url)
@@ -30,11 +26,19 @@ def kml_master():
     return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
 
 
+@app.route("/maps/<map_source>.kml")
+def kml_map_root(map_source):
+    map = app.config["mapsources"][map_source]
+    kml_doc = KMLMapRoot(map, url_formatter=abs_url)
+    return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
+
+
 @app.route("/maps/<map_source>/<int:z>/<int:x>/<int:y>.kml")
 def kml_region(map_source, z, x, y):
     map = app.config["mapsources"][map_source]
     kml_doc = KMLRegion(map, z, x, y, url_formatter=abs_url)
     return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
+
 
 def run_app():
     argp = argparse.ArgumentParser("KML Overlay generator. ")
@@ -49,3 +53,4 @@ def run_app():
 
 if __name__ == '__main__':
     run_app()
+
