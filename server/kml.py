@@ -5,6 +5,7 @@ from lxml import etree
 # TODO Documentation! Make clear that we distinguish between regionGrid and TileGrid
 # TODO Knuth: "Code should read as if it was a piece of literature"
 # TODO Unittesting
+# TODO maxzoom
 
 """
 it would proabably be more pythonic if
@@ -13,10 +14,14 @@ KML Builder and turned them into module
 level functions
 """
 
-LOG_R = -1
+LOG_R = 0  # TODO, newly defined as log_2 GroundOverlays per row per Region (makes more sense)
+MAX_LOD_PIXELS = -1
+MIN_LOD_PIXELS = 128 * (2 ** LOG_R)
+
 
 def kml_element_name(grid_coords, elem_id="KML"):
     return "_".join(str(x) for x in [elem_id, grid_coords.zoom, grid_coords.x, grid_coords.y])
+
 
 def kml_lat_lon_box(geo_bb):
     """
@@ -34,7 +39,7 @@ def kml_lat_lon_box(geo_bb):
     )
 
 
-def kml_lod(min_lod_pixels=128, max_lod_pixels=-1):
+def kml_lod(min_lod_pixels=MIN_LOD_PIXELS, max_lod_pixels=MAX_LOD_PIXELS):
     """Create the KML LevelOfDetail (LOD) Tag"""
     # TODO: min_lod_pixels should be dependent on tiles per row
     return KML.Lod(
@@ -153,7 +158,7 @@ class KMLMap:
         return etree.tostring(self.kml_root, pretty_print=True, xml_declaration=True)
 
     def __iter__(self):
-        yield from self.kml_doc
+        yield from self.kml_doc.iterchildren()
 
 
 class KMLMaster(KMLMap):
@@ -179,10 +184,11 @@ class KMLMapRoot(KMLMap):
         self.mapsource = mapsource
 
         self.log_r = log_r
-        z = mapsource.min_zoom
+        z = max(mapsource.min_zoom, log_r)  # on zoom level 0, one cannot have more than one tile per region.
         n_tiles = 2 ** z
         r = 2 ** self.log_r
-        n_regions = min(n_tiles, n_tiles/r)
+        n_regions = n_tiles//r
+        assert n_tiles % r == 0
         self.add_elem(KML.name("{} root".format(mapsource.name)))
         for x, y in griditer(0, 0, n_regions):
             self.add_elems(KMLRegion(self.mapsource, z, x, y, self.url_formatter, self.log_r))

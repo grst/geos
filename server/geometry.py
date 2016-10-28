@@ -238,26 +238,25 @@ class TileCoordinate(GridCoordinate):
 
 class RegionCoordinate(GridCoordinate):
     """Represents a super-level TileCoordinate for reducing http requests"""
-    def __init__(self, zoom, x, y, log_r=-1):
+    def __init__(self, zoom, x, y, log_r=0):
         # TODO documentaion
-        assert log_r in range(-1, 4)
+        assert log_r in range(0, 5)
         super().__init__(zoom, x, y)
         self.log_r = log_r
         self.r = 2 ** log_r
-        self.grid_coef = max(1, self.r)
-        self.root_tile = TileCoordinate(zoom, x * self.grid_coef, y * self.grid_coef)
+        self.root_tile = TileCoordinate(zoom, x * self.r, y * self.r)
 
     def geographic_bounds(self):
-        # TODO check / test
+        # TODO check / testf
         p1 = self.root_tile.to_geographic()
         p2 = TileCoordinate(self.root_tile.zoom,
-                            self.root_tile.x + self.grid_coef,
-                            self.root_tile.y + self.grid_coef).to_geographic()
+                            self.root_tile.x + self.r,
+                            self.root_tile.y + self.r).to_geographic()
         return GeographicBB(p1.lon, p2.lat, p2.lon, p1.lat)
 
     def get_tiles(self):
         """Get all TileCoordinates contained in the region"""
-        for x, y in griditer(self.root_tile.x, self.root_tile.y, ncol=self.grid_coef):
+        for x, y in griditer(self.root_tile.x, self.root_tile.y, ncol=self.r):
             yield TileCoordinate(self.root_tile.zoom, x, y)
 
     def zoom_in(self):
