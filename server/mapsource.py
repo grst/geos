@@ -1,5 +1,7 @@
 import xml.etree.ElementTree
+import itertools
 import os
+from pprint import pprint
 
 
 def load_maps(maps_dir):
@@ -15,6 +17,60 @@ def load_maps(maps_dir):
     return maps
 
 
+def walk_mapsources(mapsources, root=""):
+    """
+    like os.walk, only for the paths saved in the mapsources.
+    Args:
+        mapsources:
+
+    Yield:
+        (root, foldernames, maps)
+
+    >>> mapsources = load_maps("test/mapsources")
+    >>> pprint([x for x in walk_mapsources(mapsources.values())])
+    [('',
+      ['asia', 'europe'],
+      [<MapSource: osm1 (root 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
+       <MapSource: osm10 (root 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+     ('asia',
+      [],
+      [<MapSource: osm6 (asia), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+     ('europe',
+      ['france', 'germany', 'switzerland'],
+      [<MapSource: osm4 (eruope 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:1, max_zoom:18>]),
+     ('europe/france',
+      [],
+      [<MapSource: osm2 (europe/france 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
+       <MapSource: osm3 (europe/france 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:1, max_zoom:18>,
+       <MapSource: osm5 (europe/france 3), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+     ('europe/germany',
+      [],
+      [<MapSource: osm7 (europe/germany 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
+       <MapSource: osm8 (europe/germany 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+     ('europe/switzerland',
+      [],
+      [<MapSource: osm9 (europe/switzerland), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>])]
+
+    """
+    def get_first_folder(path):
+        """
+        Get the first folder in a path
+        >>> get_first_folder("europe/switzerland/bs")
+        europe
+        """
+        path = path[len(root):]
+        path = path.lstrip(os.sep)
+        return path.split(os.sep)[0]
+
+    path_tuples = sorted(((get_first_folder(m.folder), m) for m in mapsources), key=lambda x: x[0])
+    groups = {k: [x for x in g] for k, g in itertools.groupby(path_tuples, lambda x: x[0])}
+    folders = sorted([x for x in groups.keys() if x != ""])
+    mapsources = sorted([t[1] for t in groups.get("", [])], key=lambda x: x.id)
+    yield (root, folders, mapsources)
+    for fd in folders:
+        yield from walk_mapsources([t[1] for t in groups[fd]], os.path.join(root, fd))
+
+
 class MapSourceException(Exception):
     pass
 
@@ -25,16 +81,17 @@ class MapSource(object):
     of a certain map
     """
 
-    def __init__(self, id, name, tile_url, min_zoom=1, max_zoom=17):
+    def __init__(self, id, name, tile_url, folder="", min_zoom=1, max_zoom=17):
         """
 
         Args:
-            id: unique identifier (e.g. filename)
-            name: display name
-            tile_url: url of the format "http://mymap.xyz/tiles/{$z}/{$x}/{$y}"
+            id (int): unique identifier (e.g. filename)
+            name (str): display name
+            tile_url (str): url of the format "http://mymap.xyz/tiles/{$z}/{$x}/{$y}"
              where z is zoom level, and x and y the tile coordinates respectively.
-            min_zoom: minimal allowed zoom level of the map
-            max_zoom: maximal allowed zoom level of the map
+            folder (str): folder to organize the map in (e.g. /europe/germany)
+            min_zoom (int): minimal allowed zoom level of the map
+            max_zoom (int): maximal allowed zoom level of the map
 
         >>> ms = MapSource.from_xml("mapsources/osm.xml")
         >>> ms.name
@@ -49,6 +106,7 @@ class MapSource(object):
         self.id = id
         self.name = name
         self.tile_url = tile_url
+        self.folder = folder
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
 
@@ -86,15 +144,18 @@ class MapSource(object):
             attrs[elem.tag] = elem.text
 
         try:
-            map_id = attrs.get('id', os.path.basename(xml_path))
-            return MapSource(map_id, attrs['name'], attrs['url'],
+            # id defaults to filename
+            map_id = attrs.get('id', os.path.splitext(os.path.basename(xml_path))[0])
+            map_folder = attrs.get('folder', "")
+            map_folder = "" if map_folder is None else map_folder
+            return MapSource(map_id, attrs['name'], attrs['url'], map_folder,
                              int(attrs['minZoom']), int(attrs['maxZoom']))
         except KeyError:
             raise MapSourceException("Mapsource XML does not contain all required attributes. ")
         except ValueError:
             raise MapSourceException("minZoom/maxZoom must be an integer. ")
 
-    def __str__(self):
+    def __repr__(self):
         return "<MapSource: {} ({}), url:{}, min_zoom:{}, max_zoom:{}>".format(
             self.id, self.name, self.tile_url, self.min_zoom, self.max_zoom)
 

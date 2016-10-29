@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <customMapSource>
-   <name>OSM Mapnik</name>
-   <minZoom>0</minZoom>
+   <name>europe/germany 2</name>
+       <folder>europe/germany</folder>
+
+   <minZoom>5</minZoom>
    <maxZoom>18</maxZoom>
    <tileType>png</tileType>
    <url>http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png</url>
