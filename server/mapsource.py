@@ -2,6 +2,7 @@ import xml.etree.ElementTree
 import itertools
 import os
 from pprint import pprint
+from geometry import GeographicBB
 import re
 
 F_SEP = "/"  # folder separator in mapsources (not necessarily == os.sep)
@@ -86,15 +87,16 @@ class MapSource(object):
     of a certain map
     """
 
-    def __init__(self, id, name, tile_url, folder="", min_zoom=1, max_zoom=17):
+    def __init__(self, id, name, tile_url, folder="", bbox=None, min_zoom=1, max_zoom=17):
         """
 
         Args:
-            id (int): unique identifier (e.g. filename)
+            id (str): unique identifier (e.g. filename)
             name (str): display name
             tile_url (str): url of the format "http://mymap.xyz/tiles/{$z}/{$x}/{$y}"
              where z is zoom level, and x and y the tile coordinates respectively.
             folder (str): folder to organize the map in (e.g. /europe/germany)
+            bbox (GeographicBB): bounding box, only load tiles within
             min_zoom (int): minimal allowed zoom level of the map
             max_zoom (int): maximal allowed zoom level of the map
 
@@ -112,6 +114,7 @@ class MapSource(object):
         self.name = name
         self.tile_url = tile_url
         self.folder = folder
+        self.bbox = bbox
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
 
@@ -124,6 +127,27 @@ class MapSource(object):
         'http://tile.openstreetmap.org/42/43/44.png'
         """
         return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
+
+    @staticmethod
+    def parse_xml_boundary(xml_region):
+        """
+        Get the geographic bounds from an XML element
+
+        Args:
+            xml_region (Element): The <region> tag as XML Element
+
+        Returns:
+            GeographicBB:
+        """
+        try:
+            bounds = {}
+            for boundary in xml_region.getchildren():
+                bounds[boundary.tag] = float(boundary.text)
+            bbox = GeographicBB(min_lon=bounds["west"], max_lon=bounds["east"],
+                                min_lat=bounds["south"], max_lat=bounds["north"])
+            return bbox
+        except (KeyError, ValueError):
+            raise MapSourceException("region boundaries are invalid. ")
 
     @staticmethod
     def from_xml(xml_path, mapsource_prefix=""):
@@ -141,7 +165,7 @@ class MapSource(object):
             The Information is read from the xml
             <id>, <folder>, <name>, <url>, <minZoom>, <maxZoom> tags. If <id> is
             not available it defaults to the xml file basename. If <folder> is not available
-            if defaults to the folder of the xml file with the `mapsource_prefix` removed. 
+            if defaults to the folder of the xml file with the `mapsource_prefix` removed.
 
         Returns:
             MapSource object.
@@ -153,16 +177,19 @@ class MapSource(object):
         xmldoc = xml.etree.ElementTree.parse(xml_path).getroot()
         attrs = {}
         for elem in xmldoc.getchildren():
-            attrs[elem.tag] = elem.text
+            attrs[elem.tag] = elem
 
         try:
             # id defaults to filename
-            map_id = attrs.get('id', os.path.splitext(os.path.basename(xml_path))[0])
+            map_id = attrs['id'].text if 'id' in attrs else os.path.splitext(os.path.basename(xml_path))[0]
             # folder defaults to relative path.
-            map_folder = attrs.get('folder', re.sub("^" + re.escape(mapsource_prefix), "", os.path.dirname(xml_path)))
+            map_folder = attrs['folder'].text if 'folder' in attrs else re.sub("^" + re.escape(mapsource_prefix),
+                                                                          "", os.path.dirname(xml_path))
+            bbox = MapSource.parse_xml_boundary(attrs["region"]) if "region" in attrs else None
             map_folder = "" if map_folder is None else map_folder
-            return MapSource(map_id, attrs['name'], attrs['url'], map_folder,
-                             int(attrs['minZoom']), int(attrs['maxZoom']))
+
+            return MapSource(map_id, attrs['name'].text, attrs['url'].text, map_folder, bbox=bbox,
+                             min_zoom=int(attrs['minZoom'].text), max_zoom=int(attrs['maxZoom'].text))
         except KeyError:
             raise MapSourceException("Mapsource XML does not contain all required attributes. ")
         except ValueError:

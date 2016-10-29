@@ -96,9 +96,12 @@ class GeographicBB:
         self.min = GeographicCoordinate(min_lon, min_lat)
         self.max = GeographicCoordinate(max_lon, max_lat)
 
-    def intersection(self, other):
-        intersects = self.min.lon <= other.max.lon and self.max.lon >= other.min.lon and \
+    def intersects(self, other):
+        return self.min.lon <= other.max.lon and self.max.lon >= other.min.lon and \
                      self.min.lat <= other.max.lat and self.max.lat >= other.min.lat
+
+    def intersection(self, other):
+        intersects = self.intersects(other)
         if intersects:
             return GeographicBB(max(self.min.lon, other.min.lon),
                                 max(self.min.lat, other.min.lat),
@@ -191,7 +194,6 @@ class GridCoordinate(metaclass=ABCMeta):
         self.x = x
         self.y = y
 
-    @abstractmethod
     def zoom_in(self):
         """
         Yields:

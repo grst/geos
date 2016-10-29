@@ -50,10 +50,12 @@ Understanding the `log_tiles_per_row` is likely to require some explanation:
 from pykml.factory import KML_ElementMaker as KML
 from geometry import *
 from lxml import etree
+import math
 from mapsource import walk_mapsources, F_SEP
 
 DEFAULT_MAX_LOD_PIXELS = -1
 DEFAULT_MIN_LOD_PIXELS = 128
+MIN_ZOOM_LIMIT = 5  # if minZoom is higher than that, create empty network links.
 
 
 def kml_element_name(grid_coords, elem_id="KML"):
@@ -256,7 +258,6 @@ class KMLMaster(KMLMap):
                                  name=mapsource.name, visible=False)
 
 
-
 class KMLMapRoot(KMLMap):
     """Create root Document for an
     individual Map. Can be used as standalone KML
@@ -270,14 +271,26 @@ class KMLMapRoot(KMLMap):
         self.log_tiles_per_row = log_tiles_per_row
 
         # on zoom level 0, one cannot have more than one tile per region.
-        zoom = max(mapsource.min_zoom, log_tiles_per_row)
+        # if the min zoom level is too high, the kml file would grow too large.
+        zoom = min(max(mapsource.min_zoom, log_tiles_per_row), MIN_ZOOM_LIMIT)
 
         n_tiles = 2 ** zoom
-        tile_per_row = 2 ** self.log_tiles_per_row
-        n_regions = n_tiles//tile_per_row
-        assert n_tiles % tile_per_row == 0
+        tiles_per_row = 2 ** self.log_tiles_per_row
+        n_regions = n_tiles//tiles_per_row
+        assert n_tiles % tiles_per_row == 0
+
+        if mapsource.bbox is None:
+            bounds = (0, 0, n_regions, n_regions)
+        else:
+            map_bounds = mapsource.bbox.to_mercator().to_tile(zoom)
+            x_lower = math.floor(map_bounds.min.x/tiles_per_row)
+            y_lower = math.floor(map_bounds.min.y/tiles_per_row)
+            ncol = math.ceil(map_bounds.max.x/tiles_per_row) - x_lower
+            nrow = math.ceil(map_bounds.max.y/tiles_per_row) - y_lower
+            bounds = (x_lower, y_lower, ncol, nrow)
+
         self.add_elem(KML.name("{} root".format(mapsource.name)))
-        for x, y in griditer(0, 0, n_regions):
+        for x, y in griditer(*bounds):
             self.add_elems(KMLRegion(self.url_formatter, self.mapsource,
                                      self.log_tiles_per_row, zoom, x, y))
 
@@ -295,8 +308,9 @@ class KMLRegion(KMLMap):
 
         self.add_elem(KML.name(kml_element_name(rc, "DOC")))
 
-        for tc in rc.get_tiles():
-            self.add_ground_overlay(tc)
+        if zoom >= mapsource.min_zoom:
+            for tc in rc.get_tiles():
+                self.add_ground_overlay(tc)
         if zoom < mapsource.max_zoom:
             for rc_child in rc.zoom_in():
                 self.add_network_link(rc_child)
