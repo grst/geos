@@ -8,36 +8,43 @@ from kml import *
 app = Flask(__name__)
 
 
-def abs_url(rel_url):
-    """Create an absolute url with respect to SERVER_NAME"""
-    rel_url = rel_url.lstrip("/")
-    return "{}://{}/{}".format(app.config["PREFERRED_URL_SCHEME"],
-                               app.config["SERVER_NAME"], rel_url)
+def kml_response(kml_map):
+    """
+    Args:
+        kml_map (KMLMap): KMLMap object
+
+    Returns:
+        Response: a Flask Response with proper MIME-type.
+
+    """
+    return Response(kml_map.get_kml(), mimetype=kml_map.MIME_TYPE)
 
 
 @app.route('/')
 def main():
+    # TODO overview of maps
     return render_template("index.html")
 
 
 @app.route("/kml-master.kml")
 def kml_master():
-    kml_doc = KMLMaster(app.config["mapsources"].values(), url_formatter=abs_url)
-    return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
+    kml_doc = KMLMaster(app.config["url_formatter"], app.config["mapsources"].values())
+    return kml_response(kml_doc)
 
 
 @app.route("/maps/<map_source>.kml")
 def kml_map_root(map_source):
     map = app.config["mapsources"][map_source]
-    kml_doc = KMLMapRoot(map, url_formatter=abs_url)
-    return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
+    kml_doc = KMLMapRoot(app.config["url_formatter"], map, app.config["LOG_TILES_PER_ROW"])
+    return kml_response(kml_doc)
 
 
 @app.route("/maps/<map_source>/<int:z>/<int:x>/<int:y>.kml")
 def kml_region(map_source, z, x, y):
     map = app.config["mapsources"][map_source]
-    kml_doc = KMLRegion(map, z, x, y, url_formatter=abs_url)
-    return Response(kml_doc.get_kml(), mimetype=kml_doc.MIME_TYPE)
+    kml_doc = KMLRegion(app.config["url_formatter"], map, app.config["LOG_TILES_PER_ROW"],
+                        z, x, y)
+    return kml_response(kml_doc)
 
 
 def run_app():
@@ -48,6 +55,8 @@ def run_app():
     args = argp.parse_args()
 
     app.config.from_object('default_settings')
+    app.config['url_formatter'] = URLFormatter(app.config["SERVER_NAME"],
+                                               app.config["PREFERRED_URL_SCHEME"])
     app.config['mapsources'] = mapsource.load_maps(args.mapsource)
     app.run()
 

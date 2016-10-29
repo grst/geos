@@ -39,17 +39,17 @@ def griditer(x, y, ncol, nrow=None, step=1):
     Iterate through a grid of tiles.
 
     Args:
-        x: x start-coordinate
-        y: y start-coordinate
-        ncol: number of tile columns
-        nrow: number of tile rows. If not specified, this
+        x (int): x start-coordinate
+        y (int): y start-coordinate
+        ncol (int): number of tile columns
+        nrow (int): number of tile rows. If not specified, this
             defaults to ncol, s.t. a quadratic region is
             generated
-        step: clear. Analogous to range().
+        step (int): clear. Analogous to range().
 
-    Returns:
-        make an iterator over all tuples (x, y) in the region
-        delimited by (x, y), (x + ncol, y + ncol).
+    Yields:
+        Tuple: all tuples (x, y) in the region delimited by
+            (x, y), (x + ncol, y + ncol).
 
     """
     if nrow is None:
@@ -194,11 +194,8 @@ class GridCoordinate(metaclass=ABCMeta):
     @abstractmethod
     def zoom_in(self):
         """
-        Get the four tiles of the next zoom level.
-
-        Returns:
-            iterator over the tiles of the next zoom level.
-
+        Yields:
+            GridCoordinate: the four tiles of the next zoom level
         """
         return
 
@@ -243,7 +240,7 @@ class TileCoordinate(GridCoordinate):
 
 
 class RegionCoordinate(GridCoordinate):
-    """ represents a region spanning multiple Tiles in a worldwide grid. """
+    """ represents a region spanning multiple Tiles in a worldwide grid of Regions. """
 
     def __init__(self, zoom, x, y, log_tiles_per_row=0):
         """
@@ -262,10 +259,10 @@ class RegionCoordinate(GridCoordinate):
             * log_tiles_per_row = 2 means 2**2 = 4 tiles per row, thus 16 tiles per region.
 
         Args:
-            zoom: clear.
-            x: clear.
-            y: clear.
-            log_tiles_per_row: size of the region as log2(tiles per row per region).
+            zoom (int): clear.
+            x (int): clear.
+            y (int): clear.
+            log_tiles_per_row (int): size of the region as log2(tiles per row per region).
                 needs to be at least 0 (-> 1 tile) and at most 5 (-> 1024 tiles)
         """
         assert log_tiles_per_row in range(0, 5)
