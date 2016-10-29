@@ -176,14 +176,15 @@ class URLFormatter:
     """Responsible for generating absolute URLs to
     KML Map files"""
 
-    def __init__(self, server_name, url_scheme="http"):
-        self.server_name = server_name
+    def __init__(self, host, port, url_scheme="http"):
+        self.host = host
+        self.port = port
         self.url_scheme = url_scheme
 
     def get_abs_url(self, rel_url):
         """Create an absolute url with respect to SERVER_NAME"""
         rel_url = rel_url.lstrip("/")
-        return "{}://{}/{}".format(self.url_scheme, self.server_name, rel_url)
+        return "{}://{}:{}/{}".format(self.url_scheme, self.host, self.port, rel_url)
 
     def get_map_root_url(self, mapsource):
         return self.get_abs_url("/maps/{}.kml".format(mapsource.id))

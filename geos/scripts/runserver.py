@@ -1,11 +1,14 @@
+#!/usr/bin/env python3
 from geos import app
 import argparse
 import geos.mapsource
 import pkg_resources
 from geos.kml import URLFormatter
 
+app.config.from_object('geos.default_settings')
 
-def run_app(default_host="127.0.0.1", default_port=5000):
+
+def run_app(default_host=app.config['HOST'], default_port=app.config['PORT']):
     argp = argparse.ArgumentParser("geos")
     argp.add_argument("-m", "--mapsource", required=False,
                       default=pkg_resources.resource_filename("geos", "mapsources"),
@@ -19,9 +22,7 @@ def run_app(default_host="127.0.0.1", default_port=5000):
 
     args = argp.parse_args()
 
-    app.config.from_object('geos.default_settings')
-    app.config['url_formatter'] = URLFormatter(app.config["SERVER_NAME"],
-                                               app.config["PREFERRED_URL_SCHEME"])
+    app.config['url_formatter'] = URLFormatter(args.host, args.port, app.config["PREFERRED_URL_SCHEME"])
     app.config['mapsources'] = geos.mapsource.load_maps(args.mapsource)
 
     app.run(

@@ -4,7 +4,7 @@ from setuptools import find_packages
 setup(
     name='geos',
     version='0.1.0',
-    packages = find_packages(),
+    packages=find_packages(),
     description='Server for displaying tiled maps in Google Earth',
     author='Gregor Sturm',
     author_email='mail@gregor-sturm.de',
@@ -16,7 +16,7 @@ setup(
     ],
     classifiers=[],
     entry_points={
-        'console_scripts': ['geos=geos.server:run_app'],
+        'console_scripts': ['geos=geos.scripts.runserver:run_app'],
     },
     include_package_data=True
 )

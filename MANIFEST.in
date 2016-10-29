@@ -1,3 +1,3 @@
-recursive-include server/mapsources *
-recursive-include server/static *
-recursive-include server/templates *
+recursive-include geos/mapsources *
+recursive-include geos/static *
+recursive-include geos/templates *

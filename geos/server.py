@@ -22,6 +22,7 @@ def kml_response(kml_map):
 def index():
     return render_template("index.html")
 
+
 @app.route("/kml-master.kml")
 def kml_master():
     kml_doc = KMLMaster(app.config["url_formatter"], app.config["mapsources"].values())
