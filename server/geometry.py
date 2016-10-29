@@ -10,7 +10,6 @@ from abc import ABCMeta, abstractmethod
 __author__ = "Martin Loetzsch, Gregor Sturm"
 __licence__ = "Apache 2.0"
 
-
 _earthradius = 6378137.0
 
 _tilesize = _initial_resolution = _originshift = None
@@ -31,30 +30,32 @@ def init_geometry(tilesize=256.0):
     _originshift_180 = _originshift / 180.0
     _180_originshift = 180.0 / _originshift
 
+
 init_geometry()
 
 
 def griditer(x, y, ncol, nrow=None, step=1):
     """
-    Iterate through a region of tiles.
+    Iterate through a grid of tiles.
 
     Args:
-        tile_coords: start-coordinate.
+        x: x start-coordinate
+        y: y start-coordinate
         ncol: number of tile columns
         nrow: number of tile rows. If not specified, this
             defaults to ncol, s.t. a quadratic region is
             generated
-        step: clear. Analogous to range.
+        step: clear. Analogous to range().
 
     Returns:
-        generator yielding tiles in the region delimited by
-        tile_coords, ncol and nrow.
+        make an iterator over all tuples (x, y) in the region
+        delimited by (x, y), (x + ncol, y + ncol).
 
     """
     if nrow is None:
         nrow = ncol
     yield from itertools.product(range(x, x + ncol, step),
-                                  range(y, y + nrow, step))
+                                 range(y, y + nrow, step))
 
 
 class GeographicCoordinate:
@@ -85,11 +86,12 @@ class GeographicCoordinate:
 
     def __str__(self):
         return "<lon: " + str(self.lon) + ", lat: " + str(self.lat) + ", height: " \
-                + str(self.height) + ">"
+               + str(self.height) + ">"
 
 
 class GeographicBB:
     """ A bounding box defined by two geographic coordinates """
+
     def __init__(self, min_lon=None, min_lat=None, max_lon=None, max_lat=None):
         self.min = GeographicCoordinate(min_lon, min_lat)
         self.max = GeographicCoordinate(max_lon, max_lat)
@@ -119,6 +121,7 @@ class GeographicBB:
 
 class CartesianCoordinate:
     """ Represents a coordinate in a geocentric Cartesian coordinate system """
+
     def __init__(self, x, y, z):
         self.x = x
         self.y = y
@@ -136,6 +139,7 @@ class CartesianCoordinate:
 
 class MercatorCoordinate:
     """ Represents a coordinate in Spherical Mercator EPSG:900913 """
+
     def __init__(self, x=None, y=None):
         self.x = x
         self.y = y
@@ -153,8 +157,8 @@ class MercatorCoordinate:
         return GeographicCoordinate(
             None if self.x is None else self.x * _180_originshift,
             None if self.y is None
-                else (2 * math.atan(math.exp(self.y * _180_originshift * _pi_180)) - _pi_2) \
-                      * _180_pi)
+            else (2 * math.atan(math.exp(self.y * _180_originshift * _pi_180)) - _pi_2) \
+                 * _180_pi)
 
     def __str__(self):
         return "<x: " + str(self.x) + ", y: " + str(self.y) + ">"
@@ -181,6 +185,7 @@ class GridCoordinate(metaclass=ABCMeta):
     """
     a simple representation of a position in a multi-zoom-level grid.
     """
+
     def __init__(self, zoom, x, y):
         self.zoom = zoom
         self.x = x
@@ -192,7 +197,7 @@ class GridCoordinate(metaclass=ABCMeta):
         Get the four tiles of the next zoom level.
 
         Returns:
-            Generator yielding the tiles.
+            iterator over the tiles of the next zoom level.
 
         """
         return
@@ -203,7 +208,7 @@ class GridCoordinate(metaclass=ABCMeta):
         ty = self.y
         for i in range(self.zoom, 0, -1):
             digit = 0
-            mask = 1 << (i-1)
+            mask = 1 << (i - 1)
             if (tx & mask) != 0:
                 digit += 1
             if (ty & mask) != 0:
@@ -217,6 +222,7 @@ class GridCoordinate(metaclass=ABCMeta):
 
 class TileCoordinate(GridCoordinate):
     """ Represents a coordinate in a worldwide tile grid. """
+
     def to_mercator(self):
         res = _initialresolution / (2 ** self.zoom)
         return MercatorCoordinate(
@@ -237,31 +243,56 @@ class TileCoordinate(GridCoordinate):
 
 
 class RegionCoordinate(GridCoordinate):
-    """Represents a super-level TileCoordinate for reducing http requests"""
-    def __init__(self, zoom, x, y, log_r=0):
-        # TODO documentaion
-        assert log_r in range(0, 5)
+    """ represents a region spanning multiple Tiles in a worldwide grid. """
+
+    def __init__(self, zoom, x, y, log_tiles_per_row=0):
+        """
+        Build a region containing multiple tiles.
+
+        A region is a square containing multiple tiles, e.g.
+                 -- --
+                | 1| 2|
+                 -- --
+                | 3| 4|
+                 -- --
+        A region must contain at least one tile and each row must have
+        a power of two of tiles. The size of the region is specified
+        with log2(tiles per row per region), e.g.
+            * log_tiles_per_row = 0 means 2**0 = 1 tile
+            * log_tiles_per_row = 2 means 2**2 = 4 tiles per row, thus 16 tiles per region.
+
+        Args:
+            zoom: clear.
+            x: clear.
+            y: clear.
+            log_tiles_per_row: size of the region as log2(tiles per row per region).
+                needs to be at least 0 (-> 1 tile) and at most 5 (-> 1024 tiles)
+        """
+        assert log_tiles_per_row in range(0, 5)
         super().__init__(zoom, x, y)
-        self.log_r = log_r
-        self.r = 2 ** log_r
-        self.root_tile = TileCoordinate(zoom, x * self.r, y * self.r)
+        self.log_tiles_per_row = log_tiles_per_row
+        self.tiles_per_row = 2 ** log_tiles_per_row
+        self.root_tile = TileCoordinate(zoom, x * self.tiles_per_row, y * self.tiles_per_row)
 
     def geographic_bounds(self):
-        # TODO check / testf
         p1 = self.root_tile.to_geographic()
         p2 = TileCoordinate(self.root_tile.zoom,
-                            self.root_tile.x + self.r,
-                            self.root_tile.y + self.r).to_geographic()
+                            self.root_tile.x + self.tiles_per_row,
+                            self.root_tile.y + self.tiles_per_row).to_geographic()
         return GeographicBB(p1.lon, p2.lat, p2.lon, p1.lat)
 
     def get_tiles(self):
         """Get all TileCoordinates contained in the region"""
-        for x, y in griditer(self.root_tile.x, self.root_tile.y, ncol=self.r):
+        for x, y in griditer(self.root_tile.x, self.root_tile.y, ncol=self.tiles_per_row):
             yield TileCoordinate(self.root_tile.zoom, x, y)
 
     def zoom_in(self):
         for x, y in griditer(self.x * 2, self.y * 2, ncol=2):
-            yield RegionCoordinate(self.zoom + 1, x, y, log_r=self.log_r)
+            yield RegionCoordinate(self.zoom + 1, x, y, log_tiles_per_row=self.log_tiles_per_row)
+
+    def __str__(self):
+        return ("<zoom: " + str(self.zoom) + ", x: " + str(self.x) + ", y: " + str(self.y) +
+                ", log_tiles_per_row: " + str(self.log_tiles_per_row) + ">")
 
 
 class GridBB:
@@ -295,11 +326,9 @@ class GridBB:
 
     def is_inside(self, tile):
         return self.min.y <= tile.y <= self.max.y and \
-            (self.min.x <= tile.x <= self.max.x or
-             (self.max.x > 2 ** tile.zoom - 1 and
-              0 <= tile.x <= self.max.x % (2 ** tile.zoom)))
+               (self.min.x <= tile.x <= self.max.x or
+                (self.max.x > 2 ** tile.zoom - 1 and
+                 0 <= tile.x <= self.max.x % (2 ** tile.zoom)))
 
     def __str__(self):
         return "<tile min: " + str(self.min) + ", max: " + str(self.max) + ">"
-
-
