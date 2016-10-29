@@ -48,10 +48,10 @@ Understanding the `log_tiles_per_row` is likely to require some explanation:
 
 
 from pykml.factory import KML_ElementMaker as KML
-from geometry import *
+from geos.geometry import *
 from lxml import etree
 import math
-from mapsource import walk_mapsources, F_SEP
+from geos.mapsource import walk_mapsources, F_SEP
 
 DEFAULT_MAX_LOD_PIXELS = -1
 DEFAULT_MIN_LOD_PIXELS = 128

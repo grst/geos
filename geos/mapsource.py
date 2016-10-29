@@ -2,7 +2,7 @@ import xml.etree.ElementTree
 import itertools
 import os
 from pprint import pprint
-from geometry import GeographicBB
+from geos.geometry import GeographicBB
 import re
 
 F_SEP = "/"  # folder separator in mapsources (not necessarily == os.sep)
