@@ -18,6 +18,10 @@ of the map you want to display there:
 
 ![](doc/ge-places.png)
 
+Once the checkbox is activated, the mapoverlay should load.
+Note, that some maps do not provide tiles below a certain zoom level.
+In that case you have to zoom in for the tiles to load. 
+
 ## Creating Mapsources
 http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources
 
