@@ -2,14 +2,19 @@ import xml.etree.ElementTree
 import itertools
 import os
 from pprint import pprint
+import re
+
+F_SEP = "/"  # folder separator in mapsources (not necessarily == os.sep)
 
 
 def load_maps(maps_dir):
+    maps_dir = os.path.abspath(maps_dir)
     maps = {}
     for root, dirnames, filenames in os.walk(maps_dir):
         for filename in filenames:
             if filename.endswith(".xml"):
-                map = MapSource.from_xml(os.path.join(root, filename))
+                xml_file = os.path.join(root, filename)
+                map = MapSource.from_xml(xml_file, maps_dir)
                 if map.id in maps:
                     raise MapSourceException("duplicate map id: {} in file {}".format(map.id, xml_file))
                 else:
@@ -32,22 +37,22 @@ def walk_mapsources(mapsources, root=""):
       ['asia', 'europe'],
       [<MapSource: osm1 (root 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
        <MapSource: osm10 (root 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
-     ('asia',
+     ('/asia',
       [],
       [<MapSource: osm6 (asia), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
-     ('europe',
+     ('/europe',
       ['france', 'germany', 'switzerland'],
       [<MapSource: osm4 (eruope 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:1, max_zoom:18>]),
-     ('europe/france',
+     ('/europe/france',
       [],
       [<MapSource: osm2 (europe/france 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
        <MapSource: osm3 (europe/france 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:1, max_zoom:18>,
        <MapSource: osm5 (europe/france 3), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
-     ('europe/germany',
+     ('/europe/germany',
       [],
       [<MapSource: osm7 (europe/germany 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
        <MapSource: osm8 (europe/germany 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
-     ('europe/switzerland',
+     ('/europe/switzerland',
       [],
       [<MapSource: osm9 (europe/switzerland), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>])]
 
@@ -55,12 +60,12 @@ def walk_mapsources(mapsources, root=""):
     def get_first_folder(path):
         """
         Get the first folder in a path
-        >>> get_first_folder("europe/switzerland/bs")
+        > get_first_folder("europe/switzerland/bs")
         europe
         """
         path = path[len(root):]
-        path = path.lstrip(os.sep)
-        return path.split(os.sep)[0]
+        path = path.lstrip(F_SEP)
+        return path.split(F_SEP)[0]
 
     path_tuples = sorted(((get_first_folder(m.folder), m) for m in mapsources), key=lambda x: x[0])
     groups = {k: [x for x in g] for k, g in itertools.groupby(path_tuples, lambda x: x[0])}
@@ -68,7 +73,7 @@ def walk_mapsources(mapsources, root=""):
     mapsources = sorted([t[1] for t in groups.get("", [])], key=lambda x: x.id)
     yield (root, folders, mapsources)
     for fd in folders:
-        yield from walk_mapsources([t[1] for t in groups[fd]], os.path.join(root, fd))
+        yield from walk_mapsources([t[1] for t in groups[fd]], F_SEP.join([root, fd]))
 
 
 class MapSourceException(Exception):
@@ -121,18 +126,25 @@ class MapSource(object):
         return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
 
     @staticmethod
-    def from_xml(xml_path):
+    def from_xml(xml_path, mapsource_prefix=""):
         """
         Create a MapSource object from a MOBAC
         mapsource xml.
 
         Args:
             xml_path: path to the MOBAC mapsource xml file.
+            mapsource_prefix: root path of the mapsource folder.
+              Used to determine relative path within the maps
+              directory.
+
+        Note:
+            The Information is read from the xml
+            <id>, <folder>, <name>, <url>, <minZoom>, <maxZoom> tags. If <id> is
+            not available it defaults to the xml file basename. If <folder> is not available
+            if defaults to the folder of the xml file with the `mapsource_prefix` removed. 
 
         Returns:
-            MapSource object. Information is read from the xml
-            <id>, <name>, <url>, <minZoom>, <maxZoom> tags. If <id> is
-            not available it defaults to the xml file basename.
+            MapSource object.
 
         Raises:
             MapSourceException: when the xml file could not be parsed properly.
@@ -146,7 +158,8 @@ class MapSource(object):
         try:
             # id defaults to filename
             map_id = attrs.get('id', os.path.splitext(os.path.basename(xml_path))[0])
-            map_folder = attrs.get('folder', "")
+            # folder defaults to relative path.
+            map_folder = attrs.get('folder', re.sub("^" + re.escape(mapsource_prefix), "", os.path.dirname(xml_path)))
             map_folder = "" if map_folder is None else map_folder
             return MapSource(map_id, attrs['name'], attrs['url'], map_folder,
                              int(attrs['minZoom']), int(attrs['maxZoom']))

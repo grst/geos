@@ -50,6 +50,7 @@ Understanding the `log_tiles_per_row` is likely to require some explanation:
 from pykml.factory import KML_ElementMaker as KML
 from geometry import *
 from lxml import etree
+from mapsource import walk_mapsources, F_SEP
 
 DEFAULT_MAX_LOD_PIXELS = -1
 DEFAULT_MIN_LOD_PIXELS = 128
@@ -165,6 +166,10 @@ def kml_ground_overlay(tile_coords, tile_url):
     )
 
 
+def kml_folder(name):
+    return KML.Folder(KML.name(name))
+
+
 class URLFormatter:
     """Responsible for generating absolute URLs to
     KML Map files"""
@@ -229,11 +234,27 @@ class KMLMaster(KMLMap):
 
     def __init__(self, url_formatter, mapsources):
         super().__init__(url_formatter)
-        for map_s in mapsources:
-            self.add_elem(
-                kml_network_link(self.url_formatter.get_map_root_url(map_s),
-                                 name=map_s.name, visible=False)
-            )
+        self.fdict = {
+            root: {
+                "folders": folders,
+                "maps": maps
+            } for root, folders, maps in walk_mapsources(mapsources)
+        }
+        self.add_maps(parent=self.kml_doc)
+
+    def add_maps(self, parent, root_path=""):
+        """Recursively add maps in a folder hierarchy. """
+        for mapsource in self.fdict[root_path]['maps']:
+            parent.append(self.get_network_link(mapsource))
+        for folder in self.fdict[root_path]['folders']:
+            kml_folder_obj = kml_folder(folder)
+            parent.append(kml_folder_obj)
+            self.add_maps(parent=kml_folder_obj, root_path=F_SEP.join((root_path, folder)))
+
+    def get_network_link(self, mapsource):
+        return kml_network_link(self.url_formatter.get_map_root_url(mapsource),
+                                 name=mapsource.name, visible=False)
+
 
 
 class KMLMapRoot(KMLMap):
