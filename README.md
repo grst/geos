@@ -50,14 +50,14 @@ A minimal Mapsource file for *GEOS* looks like this:
 
 Additonally, *GEOS* currently supports the following optional parameters: 
 ```
-    <id>example_id</id>                      <!-- unique map identifier. If not specified,
-                                                  the filename will be used as id -->
-    <folder>europe/switzerland</folder>      <!-- use this tag to organize your maps in Folders 
-                                                  which will show up in Google Earth. If not specified,
-                                                  GEOS will try to obtain the folder from the directory 
-                                                  tree, in which the mapsources are saved in. --> 
-    <region>                                 <!-- specify boundaries for the map. No tiles will load outside -->
-        <north>54.5</north>                  <!-- boundaries must be provided as geographic coordinates --> 
+    <id>example_id</id>                    <!-- unique map identifier. If not specified,
+                                                the filename will be used as id -->
+    <folder>europe/switzerland</folder>    <!-- use this tag to organize your maps in Folders 
+                                                which will show up in Google Earth. If not specified,
+                                                GEOS will try to obtain the folder from the directory 
+                                                tree, in which the mapsources are saved in. --> 
+    <region>                               <!-- Set map boundaries. No tiles will load outside -->
+        <north>54.5</north>                <!-- Use geographic coordinates here.  --> 
         <south>40</south>
         <east>15</east>
         <west>5</west>
@@ -65,5 +65,9 @@ Additonally, *GEOS* currently supports the following optional parameters:
 ```
 
 ## Aspirations
+Can GEOS become a unified interface for converting, displaying and using web maps? Like a web-based version of the seemingly old-fashioned [MOBAC](http://mobac.sourceforge.net)? 
+
+Imagine you can draw and measure on a map like in [Swisstopo](https://map.geo.admin.ch), download paper maps as simple as with [nkart.no](http://www.nkart.no/) and create an offline map for your GPS device just as with [MOBAC](http://mobac.sourceforge.net) for any map out there simply in your web browser. 
 
 ## Contributing
+If that sounds as awesome to you as it does to me, feel free to fork and create pull requests or simply drop me a message. 
