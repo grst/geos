@@ -34,6 +34,36 @@ geos -m mapsources
 Of course, you can create your own maps, too! If you do so, it would be cool if you shared them, e.g. by creating a pull request to the [mapsources repo](https://github.com/grst/mapsources). 
 
 ## Creating Mapsources
-http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources
+Essentially, the mapsources for *GEOS* are based on the [MOBAC Mapsource XML Format](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources). 
+
+A minimal Mapsource file for *GEOS* looks like this: 
+```
+<customMapSource>
+    <name>Example Map</name>  <!-- Name of the map as displayed in Google Earth -->
+    <minZoom>5</minZoom>      <!-- minimal zoom level supported by the web map -->
+    <maxZoom>15</maxZoom>     <!-- maximal zoom level supported by the web map -->
+    <!-- url: tells GEOS where to find the tiles. Tile URLs contain three 
+    Parameters: zoom, x and y -->
+    <url>http://example.com/map?zoom={$z}&amp;x={$x}&amp;y={$y}</url>
+</customMapSource>
+```
+
+Additonally, *GEOS* currently supports the following optional parameters: 
+```
+    <id>example_id</id>                      <!-- unique map identifier. If not specified,
+                                                  the filename will be used as id -->
+    <folder>europe/switzerland</folder>      <!-- use this tag to organize your maps in Folders 
+                                                  which will show up in Google Earth. If not specified,
+                                                  GEOS will try to obtain the folder from the directory 
+                                                  tree, in which the mapsources are saved in. --> 
+    <region>                                 <!-- specify boundaries for the map. No tiles will load outside -->
+        <north>54.5</north>                  <!-- boundaries must be provided as geographic coordinates --> 
+        <south>40</south>
+        <east>15</east>
+        <west>5</west>
+   </region>
+```
+
+## Aspirations
 
 ## Contributing
