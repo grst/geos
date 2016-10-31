@@ -25,12 +25,14 @@ def index():
 
 @app.route("/kml-master.kml")
 def kml_master():
+    """KML master document for loading all maps in Google Earth"""
     kml_doc = KMLMaster(app.config["url_formatter"], app.config["mapsources"].values())
     return kml_response(kml_doc)
 
 
 @app.route("/maps/<map_source>.kml")
 def kml_map_root(map_source):
+    """KML for a given map"""
     map = app.config["mapsources"][map_source]
     kml_doc = KMLMapRoot(app.config["url_formatter"], map, app.config["LOG_TILES_PER_ROW"])
     return kml_response(kml_doc)
@@ -38,6 +40,7 @@ def kml_map_root(map_source):
 
 @app.route("/maps/<map_source>/<int:z>/<int:x>/<int:y>.kml")
 def kml_region(map_source, z, x, y):
+    """KML region fetched by a Google Earth network link. """
     map = app.config["mapsources"][map_source]
     kml_doc = KMLRegion(app.config["url_formatter"], map, app.config["LOG_TILES_PER_ROW"],
                         z, x, y)

@@ -9,6 +9,7 @@ F_SEP = "/"  # folder separator in mapsources (not necessarily == os.sep)
 
 
 def load_maps(maps_dir):
+    """Load all xml map sources from a given directory. """
     maps_dir = os.path.abspath(maps_dir)
     maps = {}
     for root, dirnames, filenames in os.walk(maps_dir):
@@ -25,11 +26,14 @@ def load_maps(maps_dir):
 
 def walk_mapsources(mapsources, root=""):
     """
-    like os.walk, only for the paths saved in the mapsources.
-    Args:
-        mapsources:
+    recursively walk through foldernames of mapsources.
 
-    Yield:
+    Like os.walk, only for a list of mapsources.
+
+    Args:
+        mapsources (list of MapSource):
+
+    Yields:
         (root, foldernames, maps)
 
     >>> mapsources = load_maps("test/mapsources")
@@ -89,7 +93,6 @@ class MapSource(object):
 
     def __init__(self, id, name, tile_url, folder="", bbox=None, min_zoom=1, max_zoom=17):
         """
-
         Args:
             id (str): unique identifier (e.g. filename)
             name (str): display name

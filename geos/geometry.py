@@ -58,6 +58,53 @@ def griditer(x, y, ncol, nrow=None, step=1):
                                  range(y, y + nrow, step))
 
 
+def bboxiter(tile_bounds, tiles_per_row_per_region=1):
+    """
+    Iterate through a grid of regions defined by a TileBB.
+
+    Args:
+        tile_bounds (TileBB):
+        tiles_per_row_per_region: Combine multiple tiles in one region.
+            E.g. if set to two, four tiles will be combined in one region.
+            See `kml` module description for more details. Leaving the
+            default value '1' simply yields all tiles in the bounding box.
+
+    Note:
+        If the number of regions would not be an integer due to specification
+        of the `tiles_per_row_per_region` parameter, the boundaries will
+        be rounded to the next smaller or next larger integer respectively.
+
+        Example:
+            We have the following bounding box with size 2x2 and set
+            tiles_per_row_per_region = 2, delimited by the coordinates (x, y)
+
+                 (5,5)--- ---
+                     |       |
+                     |       |
+                     |       |
+                      --- ---(9,7)
+
+            Although this could be represented in one single region with two
+            tiles per row, it will create four regions:
+
+                 (2,2)--- ---         (5/2 = 2.5 -> 2, 5/2 = 2.5 -> 2)
+                     |   |   |
+                      --- ---
+                     |   |   |
+                      --- ---(5,4)    (9/2 = 4.5 -> 5, 7/2 = 3.5 -> 4)
+
+
+    Yields:
+        Tuple: all tuples (x, y) in the region delimited by the TileBB
+
+    """
+    x_lower = math.floor(tile_bounds.min.x / tiles_per_row_per_region)
+    y_lower = math.floor(tile_bounds.min.y / tiles_per_row_per_region)
+    ncol = math.ceil(tile_bounds.max.x / tiles_per_row_per_region) - x_lower
+    nrow = math.ceil(tile_bounds.max.y / tiles_per_row_per_region) - y_lower
+    yield from griditer(x_lower, y_lower, ncol, nrow)
+
+
 class GeographicCoordinate:
     """
     Represents a WGS84 Datum
@@ -186,7 +233,7 @@ class MercatorBB:
 
 class GridCoordinate(metaclass=ABCMeta):
     """
-    a simple representation of a position in a multi-zoom-level grid.
+    Represents a position in a worldwide grid.
     """
 
     def __init__(self, zoom, x, y):
@@ -242,7 +289,7 @@ class TileCoordinate(GridCoordinate):
 
 
 class RegionCoordinate(GridCoordinate):
-    """ represents a region spanning multiple Tiles in a worldwide grid of Regions. """
+    """ represents a region containing multiple tiles in a worldwide grid of regions. """
 
     def __init__(self, zoom, x, y, log_tiles_per_row=0):
         """
@@ -265,7 +312,7 @@ class RegionCoordinate(GridCoordinate):
             x (int): clear.
             y (int): clear.
             log_tiles_per_row (int): size of the region as log2(tiles per row per region).
-                needs to be at least 0 (-> 1 tile) and at most 5 (-> 1024 tiles)
+                needs to be at least 0 (-> 1 tile) and at most 4 (-> 256 tiles)
         """
         assert log_tiles_per_row in range(0, 5)
         super().__init__(zoom, x, y)

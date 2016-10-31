@@ -1,29 +1,29 @@
 """
-This module is for generating Google Earth KML files
-for displaying tiled web maps as overlay.
+This module serves for generating Google Earth KML files
+which create an overlay of tiled web maps.
 
 This module comes with three major classes:
     * KMLMaster:
-        Create a kml that contains network links to
+        Creates a KML that contains network links to
         multiple KMLMapRoots (-> overview over available maps)
     * KMLMapRoot:
-        Root document of a Map. Can be used standalone to display
-        one specific map.
+        Root document of a map containing the tiles of the first zoom level.
+        Can be used standalone to display one specific map.
     * KMLRegion:
-        A region containing multiple tiles and four network links to the
-        next zoom level.
+        A region within a KML document containing multiple tiles and f
+        our network links to the next zoom level.
 
-The number of tiles per KML Region can be specified with the `log_tiles_per_row`
-parameter. The number of tiles per region impacts the number of http requests. Many
-tiles per region will reduce the amount of KML documents requested and therefore
-reduce server load.
+The number of tiles per KML region can be specified with the `log_tiles_per_row`
+parameter. The number of tiles per region impacts the number of http requests to the server.
+Many tiles per region will reduce the amount of KML documents requested while increasing the
+number of tiles loaded at once which may be bad for users with a weak internet connection.
 
 Understanding the `log_tiles_per_row` is likely to require some explanation:
-    A KML region consists of
+    A KMLRegion consists of:
         * always four network links to the next zoom level
-        * ground overlays (the actual tile images)
+        * a certain number of ground overlays (the actual tile images)
 
-    The following constraints apply
+    The following constraints apply:
         * A KML region is always a square (nrow = ncol)
         * the number of ground overlays per row is always a power of two.
 
@@ -51,6 +51,7 @@ from pykml.factory import KML_ElementMaker as KML
 from geos.geometry import *
 from lxml import etree
 import math
+from abc import ABCMeta
 from geos.mapsource import walk_mapsources, F_SEP
 
 DEFAULT_MAX_LOD_PIXELS = -1
@@ -59,17 +60,28 @@ MIN_ZOOM_LIMIT = 5  # if minZoom is higher than that, create empty network links
 
 
 def kml_element_name(grid_coords, elem_id="KML"):
-    """Create a unique element name for KML"""
+    """
+    Create a unique element name for KML
+
+    Args:
+        grid_coords (GridCoordinate):
+        elem_id (str):
+
+    >>> kml_element_name(GridCoordinate(zoom=5, x=42, y=60), elem_id="NL")
+    'NL_5_42_60'
+    """
     return "_".join(str(x) for x in [elem_id, grid_coords.zoom, grid_coords.x, grid_coords.y])
 
 
 def kml_lat_lon_box(geo_bb):
     """
-    Create the north/south/east/west tags
-    for a <LatLonBox> or <LatLonAltBox> Bounding Box
+    Create the north/south/east/west tags for a <LatLonBox> or <LatLonAltBox> Bounding Box
 
     Args:
-        geo_bb: GeographicBB
+        geo_bb (GeographicBB):
+
+    Returns:
+        Tuple: (<north>, <south>, <east>, <west>) KMLElements
     """
     return (
         KML.north(geo_bb.max.lat),
@@ -101,7 +113,17 @@ def kml_lod(min_lod_pixels=DEFAULT_MIN_LOD_PIXELS, max_lod_pixels=DEFAULT_MAX_LO
 
 def kml_region(region_coords, min_lod_pixels=DEFAULT_MIN_LOD_PIXELS,
                max_lod_pixels=DEFAULT_MAX_LOD_PIXELS):
-    """Create the KML <Region> tag with the appropriate geographic coordinates"""
+    """
+    Create the KML <Region> tag with the appropriate geographic coordinates
+
+    Args:
+        region_coords (RegionCoordinate):
+        min_lod_pixels (int): see `kml_lod`
+        max_lod_pixels (int): see `kml_lod`
+
+    Returns:
+        KMLElement: the KML <Region>
+    """
     bbox = region_coords.geographic_bounds()
     return KML.Region(
         kml_lod(min_lod_pixels=min_lod_pixels, max_lod_pixels=max_lod_pixels),
@@ -113,8 +135,7 @@ def kml_region(region_coords, min_lod_pixels=DEFAULT_MIN_LOD_PIXELS,
 
 def kml_network_link(href, name=None, region_coords=None, visible=True):
     """
-    Create the KML <NetworkLink> Tag for a
-    certain Region in the RegionGrid.
+    Create the KML <NetworkLink> Tag for a certain Region in the RegionGrid.
 
     Args:
         region_coords (RegionCoordinate):
@@ -124,7 +145,7 @@ def kml_network_link(href, name=None, region_coords=None, visible=True):
             (i.e. checked) in Google Earth.
 
     Returns:
-        KMLElement:
+        KMLElement: the KML <NetworkLink>
 
     """
     nl = KML.NetworkLink()
@@ -153,8 +174,7 @@ def kml_ground_overlay(tile_coords, tile_url):
         tile_url (str): web-url to the actual tile image.
 
     Returns:
-        KMLElement:
-
+        KMLElement: the KML <GroundOverlay>
     """
     return KML.GroundOverlay(
         KML.name(kml_element_name(tile_coords, "GO")),
@@ -169,12 +189,20 @@ def kml_ground_overlay(tile_coords, tile_url):
 
 
 def kml_folder(name):
+    """
+    Create a KML <Folder> tag.
+
+    Args:
+        name (str): folder name
+
+    Returns:
+        KMLElement: the KML <Folder>
+    """
     return KML.Folder(KML.name(name))
 
 
 class URLFormatter:
-    """Responsible for generating absolute URLs to
-    KML Map files"""
+    """Create absolute URLs for map resources"""
 
     def __init__(self, host, port, url_scheme="http"):
         self.host = host
@@ -182,7 +210,13 @@ class URLFormatter:
         self.url_scheme = url_scheme
 
     def get_abs_url(self, rel_url):
-        """Create an absolute url with respect to SERVER_NAME"""
+        """
+        Create an absolute url from a relative one.
+
+        >>> url_formatter = URLFormatter("example.com", 80)
+        >>> url_formatter.get_abs_url("kml_master.kml")
+        'http://example.com:80/kml_master.kml'
+        """
         rel_url = rel_url.lstrip("/")
         return "{}://{}:{}/{}".format(self.url_scheme, self.host, self.port, rel_url)
 
@@ -190,12 +224,14 @@ class URLFormatter:
         return self.get_abs_url("/maps/{}.kml".format(mapsource.id))
 
     def get_map_url(self, mapsource, grid_coords):
+        """ Get URL to a map region. """
         return self.get_abs_url(
                 "/maps/{}/{}/{}/{}.kml".format(mapsource.id, grid_coords.zoom,
                                                grid_coords.x, grid_coords.y))
 
 
-class KMLMap:
+class KMLMap(metaclass=ABCMeta):
+    """Abstract base class representing a KML Document"""
     MIME_TYPE = "application/vnd.google-earth.kml+xml"
 
     def __init__(self, url_formatter):
@@ -231,13 +267,18 @@ class KMLMap:
 
 
 class KMLMaster(KMLMap):
-    """Create a KML Master document that
-    contains NetworkLinks to all Maps
-    in the mapsource directory"""
+    """Represents a KML master document that contains NetworkLinks to all maps
+    in the mapsource directory."""
 
     def __init__(self, url_formatter, mapsources):
+        """
+        Create a KML master document.
+
+        Args:
+            mapsources (list of MapSource):
+        """
         super().__init__(url_formatter)
-        self.fdict = {
+        self.map_folders = {
             root: {
                 "folders": folders,
                 "maps": maps
@@ -246,63 +287,101 @@ class KMLMaster(KMLMap):
         self.add_maps(parent=self.kml_doc)
 
     def add_maps(self, parent, root_path=""):
-        """Recursively add maps in a folder hierarchy. """
-        for mapsource in self.fdict[root_path]['maps']:
+        """
+        Recursively add maps in a folder hierarchy.
+
+        Args:
+            parent (KMLElement): KMLElement to which we want to append child folders or maps respectively
+            root_path (str): path of 'parent'
+        """
+        for mapsource in self.map_folders[root_path]['maps']:
             parent.append(self.get_network_link(mapsource))
-        for folder in self.fdict[root_path]['folders']:
+        for folder in self.map_folders[root_path]['folders']:
             kml_folder_obj = kml_folder(folder)
             parent.append(kml_folder_obj)
             self.add_maps(parent=kml_folder_obj, root_path=F_SEP.join((root_path, folder)))
 
     def get_network_link(self, mapsource):
+        """Get KML <NetworkLink> for a given mapsource. """
         return kml_network_link(self.url_formatter.get_map_root_url(mapsource),
                                  name=mapsource.name, visible=False)
 
 
 class KMLMapRoot(KMLMap):
-    """Create root Document for an
-    individual Map. Can be used as standalone KML
-    to display that map only"""
+    """Represents the root document of an individual map.
+    Can be used as standalone KML to display that map only."""
 
     def __init__(self, url_formatter, mapsource, log_tiles_per_row):
+        """
+        Create the root document of an individual map.
+
+        Args:
+            mapsource (MapSource):
+            log_tiles_per_row (int): see module description. Needs to be in range(0, 5).
+
+        Note:
+            The zoom level of the root document is determined as follows:
+            The min_zoom level is read from the mapsource. `log_tiles_per_row` defines
+            a lower bound for min_zoom. This is because e.g. on zoom level 0 we could not have
+            more than one tile per row per region as there is simply only one tile at that zoom
+            level.
+
+            However, we can run into severe performance issues, if either min_zoom
+            or log_tiles_per_row are too high. At a zoom level of only 8, a root
+            document spanning the whole world would already contain (2**8)**2 = 65536 tiles
+            which will break map display in Google Earth.
+
+            Therefore MIN_ZOOM_LIMIT is applied as an upper bound. If the determined min_zoom level
+            exceeds this limit, empty network links (without GroundOverlay) will be used to adaptively
+            load the next zoom level(s).
+
+        """
         super().__init__(url_formatter)
         self.mapsource = mapsource
 
         assert(log_tiles_per_row in range(0, 5))
         self.log_tiles_per_row = log_tiles_per_row
 
-        # on zoom level 0, one cannot have more than one tile per region.
-        # if the min zoom level is too high, the kml file would grow too large.
+        # see docstring for explanation
         zoom = min(max(mapsource.min_zoom, log_tiles_per_row), MIN_ZOOM_LIMIT)
 
-        n_tiles = 2 ** zoom
-        tiles_per_row = 2 ** self.log_tiles_per_row
-        n_regions = n_tiles//tiles_per_row
-        assert n_tiles % tiles_per_row == 0
+        n_tiles = 2 ** zoom                           # tiles per row of the whole document
+        tiles_per_row = 2 ** self.log_tiles_per_row   # tiles per row per region
+        n_regions = n_tiles//tiles_per_row            # regions per row
+        assert n_tiles % tiles_per_row == 0, "regions per row is not an integer."
 
         if mapsource.bbox is None:
-            bounds = (0, 0, n_regions, n_regions)
+            regions = griditer(0, 0, n_regions)
         else:
-            map_bounds = mapsource.bbox.to_mercator().to_tile(zoom)
-            x_lower = math.floor(map_bounds.min.x/tiles_per_row)
-            y_lower = math.floor(map_bounds.min.y/tiles_per_row)
-            ncol = math.ceil(map_bounds.max.x/tiles_per_row) - x_lower
-            nrow = math.ceil(map_bounds.max.y/tiles_per_row) - y_lower
-            bounds = (x_lower, y_lower, ncol, nrow)
+            tile_bounds = mapsource.bbox.to_mercator().to_tile(zoom)
+            regions = bboxiter(tile_bounds, tiles_per_row)
 
         self.add_elem(KML.name("{} root".format(mapsource.name)))
-        for x, y in griditer(*bounds):
+        for x, y in regions:
             self.add_elems(KMLRegion(self.url_formatter, self.mapsource,
                                      self.log_tiles_per_row, zoom, x, y))
 
 
 class KMLRegion(KMLMap):
-    """Create a KML that displays the actual tiles
-    as GroundOverlay and contains NetworkLinks
-    to the next LevelOfDetail.
-    """
+    """Represents a KML document that is loaded on demand.
+    It contains the actual tiles as GroundOverlays and contains NetworkLinks
+    to the next LevelOfDetail."""
 
     def __init__(self, url_formatter, mapsource, log_tiles_per_row, zoom, x, y):
+        """
+        Create KML document displaying a certain map region.
+
+        Args:
+            mapsource (MapSource):
+            log_tiles_per_row (int): see module description. Needs to be in range(0, 5).
+            zoom (int): zoom level
+            x (int): x coordinate identifying the region
+            y (int): y coordinate indentifying the region
+
+        Note:
+            Will contain four network links to the next zoom level unless zoom = max_zoom.
+            Will contain ground overlays with tiles unless zoom < min_zoom
+        """
         super().__init__(url_formatter)
         self.mapsource = mapsource
         rc = RegionCoordinate(zoom, x, y, log_tiles_per_row)

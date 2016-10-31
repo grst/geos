@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+"""
+Start the GEOS server from command line.
+"""
+
 from geos import app
 import argparse
 import geos.mapsource

@@ -8,7 +8,9 @@ of tiled maps.
 ## Usage
 `geos [-h] [-m MAPSOURCE] [-H HOST] [-P PORT]`
 
-To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A webserver will start. Open your browser and navigate to the URL. A simple web page will open where you can download a KML Document containing all maps. Per default, it only contains the [OSM Mapnik](https://wiki.openstreetmap.org/wiki/Mapnik) map. 
+To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start. Open your browser
+and navigate to the URL. A simple web page will open where you can download a KML Document containing all maps.
+Per default, it only contains the [OSM Mapnik](https://wiki.openstreetmap.org/wiki/Mapnik) map.
 
 In Google Earth, the KML file will appear in the 'places' pane. Activate the checkbox
 of the map you want to display there: 
@@ -20,10 +22,12 @@ Note, that some maps do not provide tiles below a certain zoom level.
 In that case you have to zoom in for the tiles to load. 
 
 ## More maps! 
-*GEOS* uses XML [Mapsource](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources
-) files, to tell the server where it can find the tiles. I started a collection of such mapsources in a [dedicated Github repository](https://github.com/grst/mapsources). 
+*GEOS* uses XML [Mapsource](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources)
+files, to tell the server where it can find the tiles. I started a collection of such mapsources in a
+[dedicated Github repository](https://github.com/grst/mapsources).
 
-You can specify a directory containing xml mapsources using the `-m` command line parameter. *GEOS* will load all maps from that directory and put them into the kml file. 
+You can specify a directory containing xml mapsources using the `-m` command line parameter.
+*GEOS* will load all maps from that directory and put them into the kml file.
 
 So, to start off, you can do the following: 
 ```
@@ -31,7 +35,8 @@ git clone git@github.com:grst/mapsources.git
 geos -m mapsources
 ```
 
-Of course, you can create your own maps, too! If you do so, it would be cool if you shared them, e.g. by creating a pull request to the [mapsources repo](https://github.com/grst/mapsources). 
+Of course, you can create your own maps, too! If you do so, it would be cool if you shared them,
+ e.g. by creating a pull request to the [mapsources repo](https://github.com/grst/mapsources).
 
 ## Creating Mapsources
 Essentially, the mapsources for *GEOS* are based on the [MOBAC Mapsource XML Format](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources). 
@@ -65,9 +70,13 @@ Additonally, *GEOS* currently supports the following optional parameters:
 ```
 
 ## Aspirations
-Can GEOS become a unified interface for converting, displaying and using web maps? Like a web-based version of the seemingly old-fashioned [MOBAC](http://mobac.sourceforge.net)? 
+Can GEOS become a unified interface for converting, displaying and using web maps?
+Like a web-based version of the seemingly old-fashioned [MOBAC](http://mobac.sourceforge.net)?
 
-Imagine you can draw and measure on a map like in [Swisstopo](https://map.geo.admin.ch), download paper maps as simple as with [nkart.no](http://www.nkart.no/) and create an offline map for your GPS device just as with [MOBAC](http://mobac.sourceforge.net) for any map out there simply in your web browser. 
+Imagine you can draw and measure on a map like in [Swisstopo](https://map.geo.admin.ch), download paper maps
+as simple as with [nkart.no](http://www.nkart.no/) and create an offline map for your GPS device just as
+with [MOBAC](http://mobac.sourceforge.net) for any map out there simply in your web browser.
 
 ## Contributing
-If that sounds as awesome to you as it does to me, feel free to fork and create pull requests or simply drop me a message. 
+If that sounds as awesome to you as it does to me, feel free to fork and create
+pull requests or simply drop me a message.
