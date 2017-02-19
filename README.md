@@ -3,13 +3,31 @@ This is a python-based server for creating Google Earth overlays
 of tiled maps. 
 
 ## Installation
-`pip install geos`
+
+### Requirements
+GEOS is python3 only!
+
+### Install GEOS through `pip`:
+`pip3 install geos`
 
 ## Usage
-`geos [-h] [-m MAPSOURCE] [-H HOST] [-P PORT]`
+```
+usage: geos [-h] [-m MAPSOURCE] [-H HOST] [-P PORT]
 
-To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start. Open your browser
-and navigate to the URL. A simple web page will open where you can download a KML Document containing all maps.
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MAPSOURCE, --mapsource MAPSOURCE
+                        path to the directory containing the mapsource files.
+                        [default: integrated mapsources]
+  -H HOST, --host HOST  Hostname of the Flask app [default localhost]
+  -P PORT, --port PORT  Port for the Flask app [default 5000]
+
+```
+
+To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start. 
+Note, that by default, the webserver is only reachable locally. You can adjust this using the `-H` prameter.
+
+Open your browser and navigate to the URL. A simple web page will open where you can download a KML Document containing all maps.
 Per default, it only contains the [OSM Mapnik](https://wiki.openstreetmap.org/wiki/Mapnik) map.
 
 In Google Earth, the KML file will appear in the 'places' pane. Activate the checkbox
