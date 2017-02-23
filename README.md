@@ -98,3 +98,6 @@ with [MOBAC](http://mobac.sourceforge.net) for any map out there simply in your 
 ## Contributing
 If that sounds as awesome to you as it does to me, feel free to fork and create
 pull requests or simply drop me a message.
+
+## Alternatives
+If you want to setup `geos` on a server, you might as well consider [MapProxy](https://mapproxy.org), which is much more professional but a bit more challenging to configure.
