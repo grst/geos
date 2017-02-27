@@ -22,6 +22,9 @@ def kml_response(kml_map):
 def index():
     return render_template("index.html")
 
+@app.route('/ol')
+def openlayers():
+    return render_template("openlayers.html")
 
 @app.route("/kml-master.kml")
 def kml_master():
