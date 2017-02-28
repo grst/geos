@@ -47,7 +47,7 @@ Understanding the `log_tiles_per_row` is likely to require some explanation:
 """
 
 
-from pykml.factory import KML_ElementMaker as KML
+from pykml_geos.factory import KML_ElementMaker as KML
 from geos.geometry import *
 from lxml import etree
 import math
