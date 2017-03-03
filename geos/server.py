@@ -2,9 +2,6 @@ from flask import Response, render_template
 from geos.kml import *
 from geos import app
 
-# todo pip
-# todo fix maps
-
 
 def kml_response(kml_map):
     """
@@ -20,11 +17,21 @@ def kml_response(kml_map):
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    tile_urls = {
+        map_source.id : map_source.tile_url.replace("$", "") for id, map_source in app.config["mapsources"].items()
+    }
+    return render_template("index.html", tile_urls=tile_urls)
+
+
+@app.route("/mapsources.json")
+def map_sources():
+    pass
+
 
 @app.route('/ol')
 def openlayers():
     return render_template("openlayers.html")
+
 
 @app.route("/kml-master.kml")
 def kml_master():

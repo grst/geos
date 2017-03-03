@@ -120,7 +120,7 @@ map.getViewport().addEventListener('mouseout', function() {
     helpTooltipElement.classList.add('hidden');
 });
 
-var typeSelect = document.getElementById('type');
+var measureType = 'line'
 
 var draw; // global so we can remove it later
 
@@ -176,7 +176,7 @@ var formatArea = function(polygon) {
 };
 
 function addInteraction() {
-    var type = (typeSelect.value == 'area' ? 'Polygon' : 'LineString');
+    var type = (measureType == 'area' ? 'Polygon' : 'LineString');
     draw = new ol.interaction.Draw({
         source: source,
          type: /** @type {ol.geom.GeometryType} */ (type),
@@ -278,14 +278,19 @@ function createMeasureTooltip() {
     map.addOverlay(measureTooltip);
 }
 
-
-/**
- * Let user change the geometry type.
- */
-typeSelect.onchange = function() {
-    map.removeInteraction(draw);
-    addInteraction();
-};
-
 addInteraction();
 
+$("#maps li a.map-link").click(function() {
+    new_source = new ol.source.XYZ({
+            url: $(this).attr("data-url"),
+            crossOrigin: 'anonymous'
+    });
+    console.log(new_source);
+    raster.setSource(new_source);
+});
+
+$("#type_select li a.measure-type").click(function() {
+    measureType = $(this).attr("data-value");
+    map.removeInteraction(draw);
+    addInteraction();
+});

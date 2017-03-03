@@ -49,4 +49,7 @@ html, body {
     border-top-color: #ffcc33;
 }
 
-
+.ol-zoom.ol-unselectable.ol-control {
+    bottom: 7px;
+    top: auto;
+}
