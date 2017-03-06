@@ -63,7 +63,7 @@ def bboxiter(tile_bounds, tiles_per_row_per_region=1):
     Iterate through a grid of regions defined by a TileBB.
 
     Args:
-        tile_bounds (TileBB):
+        tile_bounds (GridBB):
         tiles_per_row_per_region: Combine multiple tiles in one region.
             E.g. if set to two, four tiles will be combined in one region.
             See `kml` module description for more details. Leaving the

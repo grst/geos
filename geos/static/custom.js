@@ -2,10 +2,10 @@ var wgs84Sphere = new ol.Sphere(6378137);
 
 var raster = new ol.layer.Tile({
     source: new ol.source.XYZ({
-        url:'http://ec1.cdn.ecmaps.de/WmsGateway.ashx.jpg?Experience=kompass&MapStyle=KOMPASS%20Touristik&TileX={x}&TileY={y}&ZoomLevel={z}',
+        url: 'http://ec1.cdn.ecmaps.de/WmsGateway.ashx.jpg?Experience=kompass&MapStyle=KOMPASS%20Touristik&TileX={x}&TileY={y}&ZoomLevel={z}',
         crossOrigin: 'anonymous'
     })
-}); 
+});
 
 var source = new ol.source.Vector();
 
@@ -17,13 +17,13 @@ var vector = new ol.layer.Vector({
         }),
         stroke: new ol.style.Stroke({
             color: '#ffcc33',
-        width: 2
+            width: 2
         }),
         image: new ol.style.Circle({
             radius: 7,
-        fill: new ol.style.Fill({
-            color: '#ffcc33'
-        })
+            fill: new ol.style.Fill({
+                color: '#ffcc33'
+            })
         })
     })
 });
@@ -82,7 +82,7 @@ var continueLineMsg = 'Click to continue drawing the line';
  * Handle pointer move.
  * @param {ol.MapBrowserEvent} evt The event.
  */
-var pointerMoveHandler = function(evt) {
+var pointerMoveHandler = function (evt) {
     if (evt.dragging) {
         return;
     }
@@ -110,13 +110,13 @@ var map = new ol.Map({
     target: 'map',
     view: new ol.View({
         center: ol.proj.fromLonLat([37.41, 8.82]),
-    zoom: 4
+        zoom: 4
     })
 });
 
 map.on('pointermove', pointerMoveHandler);
 
-map.getViewport().addEventListener('mouseout', function() {
+map.getViewport().addEventListener('mouseout', function () {
     helpTooltipElement.classList.add('hidden');
 });
 
@@ -130,7 +130,7 @@ var draw; // global so we can remove it later
  * @param {ol.geom.LineString} line The line.
  * @return {string} The formatted length.
  */
-var formatLength = function(line) {
+var formatLength = function (line) {
     var length;
     var coordinates = line.getCoordinates();
     length = 0;
@@ -157,11 +157,11 @@ var formatLength = function(line) {
  * @param {ol.geom.Polygon} polygon The polygon.
  * @return {string} Formatted area.
  */
-var formatArea = function(polygon) {
+var formatArea = function (polygon) {
     var area;
     var sourceProj = map.getView().getProjection();
     var geom = /** @type {ol.geom.Polygon} */(polygon.clone().transform(
-                sourceProj, 'EPSG:4326'));
+        sourceProj, 'EPSG:4326'));
     var coordinates = geom.getLinearRing(0).getCoordinates();
     area = Math.abs(wgs84Sphere.geodesicArea(coordinates));
     var output;
@@ -179,26 +179,26 @@ function addInteraction() {
     var type = (measureType == 'area' ? 'Polygon' : 'LineString');
     draw = new ol.interaction.Draw({
         source: source,
-         type: /** @type {ol.geom.GeometryType} */ (type),
-         style: new ol.style.Style({
-             fill: new ol.style.Fill({
-                 color: 'rgba(255, 255, 255, 0.2)'
-             }),
-             stroke: new ol.style.Stroke({
-                 color: 'rgba(0, 0, 0, 0.5)',
-             lineDash: [10, 10],
-             width: 2
-             }),
-             image: new ol.style.Circle({
-                 radius: 5,
-             stroke: new ol.style.Stroke({
-                 color: 'rgba(0, 0, 0, 0.7)'
-             }),
-             fill: new ol.style.Fill({
-                 color: 'rgba(255, 255, 255, 0.2)'
-             })
-             })
-         })
+        type: /** @type {ol.geom.GeometryType} */ (type),
+        style: new ol.style.Style({
+            fill: new ol.style.Fill({
+                color: 'rgba(255, 255, 255, 0.2)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 0, 0.5)',
+                lineDash: [10, 10],
+                width: 2
+            }),
+            image: new ol.style.Circle({
+                radius: 5,
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(0, 0, 0, 0.7)'
+                }),
+                fill: new ol.style.Fill({
+                    color: 'rgba(255, 255, 255, 0.2)'
+                })
+            })
+        })
     });
     map.addInteraction(draw);
 
@@ -207,39 +207,39 @@ function addInteraction() {
 
     var listener;
     draw.on('drawstart',
-            function(evt) {
-                // set sketch
-                sketch = evt.feature;
+        function (evt) {
+            // set sketch
+            sketch = evt.feature;
 
-                /** @type {ol.Coordinate|undefined} */
-                var tooltipCoord = evt.coordinate;
+            /** @type {ol.Coordinate|undefined} */
+            var tooltipCoord = evt.coordinate;
 
-                listener = sketch.getGeometry().on('change', function(evt) {
-                    var geom = evt.target;
-                    var output;
-                    if (geom instanceof ol.geom.Polygon) {
-                        output = formatArea(geom);
-                        tooltipCoord = geom.getInteriorPoint().getCoordinates();
-                    } else if (geom instanceof ol.geom.LineString) {
-                        output = formatLength(geom);
-                        tooltipCoord = geom.getLastCoordinate();
-                    }
-                    measureTooltipElement.innerHTML = output;
-                    measureTooltip.setPosition(tooltipCoord);
-                });
-            }, this);
+            listener = sketch.getGeometry().on('change', function (evt) {
+                var geom = evt.target;
+                var output;
+                if (geom instanceof ol.geom.Polygon) {
+                    output = formatArea(geom);
+                    tooltipCoord = geom.getInteriorPoint().getCoordinates();
+                } else if (geom instanceof ol.geom.LineString) {
+                    output = formatLength(geom);
+                    tooltipCoord = geom.getLastCoordinate();
+                }
+                measureTooltipElement.innerHTML = output;
+                measureTooltip.setPosition(tooltipCoord);
+            });
+        }, this);
 
     draw.on('drawend',
-            function() {
-                measureTooltipElement.className = 'tooltip tooltip-static';
-                measureTooltip.setOffset([0, -7]);
-                // unset sketch
-                sketch = null;
-                // unset tooltip so that a new one can be created
-                measureTooltipElement = null;
-                createMeasureTooltip();
-                ol.Observable.unByKey(listener);
-            }, this);
+        function () {
+            measureTooltipElement.className = 'tooltip tooltip-static';
+            measureTooltip.setOffset([0, -7]);
+            // unset sketch
+            sketch = null;
+            // unset tooltip so that a new one can be created
+            measureTooltipElement = null;
+            createMeasureTooltip();
+            ol.Observable.unByKey(listener);
+        }, this);
 }
 
 
@@ -254,8 +254,8 @@ function createHelpTooltip() {
     helpTooltipElement.className = 'tooltip hidden';
     helpTooltip = new ol.Overlay({
         element: helpTooltipElement,
-                offset: [15, 0],
-                positioning: 'center-left'
+        offset: [15, 0],
+        positioning: 'center-left'
     });
     map.addOverlay(helpTooltip);
 }
@@ -272,25 +272,43 @@ function createMeasureTooltip() {
     measureTooltipElement.className = 'tooltip tooltip-measure';
     measureTooltip = new ol.Overlay({
         element: measureTooltipElement,
-                   offset: [0, -15],
-                   positioning: 'bottom-center'
+        offset: [0, -15],
+        positioning: 'bottom-center'
     });
     map.addOverlay(measureTooltip);
 }
 
 addInteraction();
 
-$("#maps li a.map-link").click(function() {
+$("#maps li a.map-link").click(function () {
     new_source = new ol.source.XYZ({
-            url: $(this).attr("data-url"),
-            crossOrigin: 'anonymous'
+        url: $(this).attr("data-url"),
+        crossOrigin: 'anonymous'
     });
     console.log(new_source);
     raster.setSource(new_source);
 });
 
-$("#type_select li a.measure-type").click(function() {
+$("#type_select li a.measure-type").click(function () {
     measureType = $(this).attr("data-value");
     map.removeInteraction(draw);
     addInteraction();
+});
+
+// First, checks if it isn't implemented yet.
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
+$("#print").click(function() {
+    center = map.getView().getCenter();
+    window.open("/print/kompass/{0}/{1}/map.pdf".format(center[0], center[1]))
 });

@@ -1,5 +1,6 @@
-from flask import Response, render_template
+from flask import Response, render_template, send_file
 from geos.kml import *
+from geos.print import print_map
 from geos import app
 
 
@@ -31,6 +32,25 @@ def map_sources():
 @app.route('/ol')
 def openlayers():
     return render_template("openlayers.html")
+
+
+@app.route('/print/<map_source>/<x>/<y>/map.pdf')
+def map_to_pdf(map_source, x, y):
+    """
+
+    Args:
+        map_source:
+        lon: mercator (EPSG:4326) x
+        lat: mercator (EPSG:4326) y
+
+    Returns:
+
+    """
+    map_source = app.config["mapsources"][map_source]
+    pdf_file = print_map(map_source, float(x), float(y), format='pdf')
+    return send_file(pdf_file,
+                     attachment_filename="map.pdf",
+                     as_attachment=True)
 
 
 @app.route("/kml-master.kml")
