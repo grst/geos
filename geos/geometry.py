@@ -10,9 +10,9 @@ from abc import ABCMeta, abstractmethod
 __author__ = "Martin Loetzsch, Gregor Sturm"
 __licence__ = "Apache 2.0"
 
-_earthradius = 6378137.0
+_earthradius = 6378137.0  # m
 
-_tilesize = _initial_resolution = _originshift = None
+_tilesize = _initialresolution = _originshift = None
 _originshift_180 = _180_originshift = None
 
 _pi_2 = math.pi / 2.0
@@ -25,8 +25,8 @@ def init_geometry(tilesize=256.0):
     global _tilesize, _initialresolution, _originshift
     global _originshift_180, _180_originshift
     _tilesize = tilesize
-    _initialresolution = 2 * math.pi * 6378137 / _tilesize
-    _originshift = 2 * math.pi * 6378137 / 2.0
+    _initialresolution = 2 * math.pi * _earthradius / _tilesize
+    _originshift = 2 * math.pi * _earthradius / 2.0
     _originshift_180 = _originshift / 180.0
     _180_originshift = 180.0 / _originshift
 
@@ -269,6 +269,9 @@ class GridCoordinate(metaclass=ABCMeta):
 class TileCoordinate(GridCoordinate):
     """ Represents a coordinate in a worldwide tile grid. """
 
+    def __init__(self, zoom, x, y):
+        super(TileCoordinate, self).__init__(zoom, x, y)
+
     def to_mercator(self):
         res = _initialresolution / (2 ** self.zoom)
         return MercatorCoordinate(
@@ -286,6 +289,26 @@ class TileCoordinate(GridCoordinate):
     def zoom_in(self):
         for x, y in griditer(self.x * 2, self.y * 2, ncol=2):
             yield TileCoordinate(self.zoom + 1, x, y)
+
+    def resolution(self):
+        """
+        Get the tile resolution at the current position.
+
+        The scale in WG84 depends on
+            * the zoom level (obviously)
+            * the latitude
+            * the tile size
+
+        References:
+            * http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale
+            * http://gis.stackexchange.com/questions/7430/what-ratio-scales-do-google-maps-zoom-levels-correspond-to
+
+        Returns:
+            float: meters per pixel
+        """
+        geo_coords = self.to_geographic()
+        resolution = abs(_initialresolution * math.cos(geo_coords.lat * _pi_180) / (2**self.zoom))
+        return resolution
 
 
 class RegionCoordinate(GridCoordinate):

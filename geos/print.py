@@ -8,13 +8,15 @@ Module for printing maps / exporting them as pdf
 from geos.geometry import *
 import urllib.request
 from urllib.error import URLError
-from PIL import Image
+from PIL import Image, ImageDraw
 from geos import app
 from tempfile import NamedTemporaryFile
+from multiprocessing import Pool
 
 TILE_SIZE = 256  # px
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, ' \
              'like Gecko) Chrome/35.0.1916.153 Safari/537.36 SE 2.X MetaSr 1.0'
+N_DOWNLOAD_WORKERS = 16
 
 # set default user agent
 opener = urllib.request.build_opener()
@@ -51,7 +53,7 @@ def print_map(map_source, x, y, zoom=14, width=297, height=210, dpi=300, format=
     tiles = get_tiles(map_source, bbox)
     img = stitch_map(tiles, width, height, bbox, dpi)
     outfile = NamedTemporaryFile(delete=False)
-    img.save(outfile, format, quality=100)
+    img.save(outfile, format, quality=100, dpi=(dpi, dpi))
     outfile.close()
     return outfile.name
 
@@ -72,6 +74,7 @@ def get_print_bbox(x, y, zoom, width, height, dpi):
         GridBB:
 
     >>> str(get_print_bbox(4164462.1505763642, 985738.7965919945, 14, 297, 150, 120))
+    '<tile min: <zoom: 14, x: 9891, y: 7786>, max: <zoom: 14, x: 9897, y: 7790>>'
     """
     tiles_h = width * dpi_to_dpmm(dpi) / TILE_SIZE
     tiles_v = height * dpi_to_dpmm(dpi) / TILE_SIZE
@@ -85,7 +88,17 @@ def get_print_bbox(x, y, zoom, width, height, dpi):
     return tile_bb
 
 
-def get_tiles(map_source, bbox):
+def download_tile(map_source, zoom, x, y):
+    tile_url = map_source.get_tile_url(zoom, x, y)
+    tmp_file, headers = urllib.request.urlretrieve(tile_url)
+    return (x, y), tmp_file
+
+
+def _download_tile_wrapper(args):
+    return download_tile(*args)
+
+
+def get_tiles(map_source, bbox, n_workers=N_DOWNLOAD_WORKERS):
     """
     Download tiles.
 
@@ -97,13 +110,16 @@ def get_tiles(map_source, bbox):
         tile store directory.
 
     """
-    # todo make parallel
+    p = Pool(n_workers)
+
     tiles = {}
     try:
-        for x, y in bboxiter(bbox):
-            tile_url = map_source.get_tile_url(bbox.zoom, x, y)
-            tiles[(x, y)], _ = urllib.request.urlretrieve(tile_url)
+        for (x, y), tmp_file in p.imap_unordered(_download_tile_wrapper, zip(
+                itertools.repeat(map_source),
+                itertools.repeat(bbox.zoom),
+                *zip(*bboxiter(bbox)))):
             app.logger.info("Downloaded tile x={}, y={}, z={}".format(x, y, bbox.zoom))
+            tiles[(x,y)] = tmp_file
     except URLError as e:
         raise MapPrintError("Error downloading tile x={}, y={}, z={} for map {}: {}".format(
             x, y, bbox.zoom, map_source.id, e.reason))
@@ -130,7 +146,36 @@ def stitch_map(tiles, width, height, bbox, dpi):
     for (x, y), tile_path in tiles.items():
         tile = Image.open(tile_path)
         img.paste(tile, ((x - bbox.min.x) * TILE_SIZE, (y - bbox.min.y) * TILE_SIZE))
+    add_scales_bar(img, bbox)
     return img
 
+
+def add_scales_bar(img, bbox):
+    """
+
+    Args:
+        img (Image):
+        bbox:
+        dpi:
+
+    Returns:
+
+    """
+    tc = TileCoordinate(bbox.min.zoom, bbox.min.x, bbox.min.y)
+    meters_per_pixel = tc.resolution()
+    one_km_bar = int(1000 * (1/meters_per_pixel))
+    col_black = (0, 0, 0)
+
+    line_start = (100, img.size[1] - 100)  # px
+    line_end = (line_start[0] + one_km_bar, line_start[1])
+    whiskers_left = [line_start[0], line_start[1] - 15, line_start[0], line_start[1]+15]
+    whiskers_right = [line_end[0], line_end[1] - 15, line_end[0], line_end[1]+15]
+
+    draw = ImageDraw.Draw(img)
+    draw.line([line_start, line_end], fill=col_black, width=5)
+    draw.line(whiskers_left, fill=col_black, width=2)
+    draw.line(whiskers_right, fill=col_black, width=2)
+    draw.text((line_start[0] + 10, line_start[1] + 10), fill=col_black, text="1 km")
+    del draw
 
 
