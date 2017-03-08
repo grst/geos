@@ -19,7 +19,7 @@ def kml_response(kml_map):
 @app.route('/')
 def index():
     tile_urls = {
-        map_source.id : map_source.tile_url.replace("$", "") for id, map_source in app.config["mapsources"].items()
+        map_source.id : "" for id, map_source in app.config["mapsources"].items()
     }
     return render_template("index.html", tile_urls=tile_urls)
 
@@ -27,11 +27,6 @@ def index():
 @app.route("/mapsources.json")
 def map_sources():
     pass
-
-
-@app.route('/ol')
-def openlayers():
-    return render_template("openlayers.html")
 
 
 @app.route('/print/<map_source>/<x>/<y>/map.pdf')
