@@ -40,26 +40,26 @@ def walk_mapsources(mapsources, root=""):
     >>> pprint([x for x in walk_mapsources(mapsources.values())])
     [('',
       ['asia', 'europe'],
-      [<MapSource: osm1 (root 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
-       <MapSource: osm10 (root 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+      [<MapSource: osm1 (root 1), n_layers: 1, min_zoom:5, max_zoom:18>,
+       <MapSource: osm10 (root 2), n_layers: 1, min_zoom:5, max_zoom:18>]),
      ('/asia',
       [],
-      [<MapSource: osm6 (asia), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+      [<MapSource: osm6 (asia), n_layers: 1, min_zoom:5, max_zoom:18>]),
      ('/europe',
       ['france', 'germany', 'switzerland'],
-      [<MapSource: osm4 (eruope 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:1, max_zoom:18>]),
+      [<MapSource: osm4 (eruope 1), n_layers: 1, min_zoom:1, max_zoom:18>]),
      ('/europe/france',
       [],
-      [<MapSource: osm2 (europe/france 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
-       <MapSource: osm3 (europe/france 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:1, max_zoom:18>,
-       <MapSource: osm5 (europe/france 3), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+      [<MapSource: osm2 (europe/france 1), n_layers: 1, min_zoom:5, max_zoom:18>,
+       <MapSource: osm3 (europe/france 2), n_layers: 1, min_zoom:1, max_zoom:18>,
+       <MapSource: osm5 (europe/france 3), n_layers: 1, min_zoom:5, max_zoom:18>]),
      ('/europe/germany',
       [],
-      [<MapSource: osm7 (europe/germany 1), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>,
-       <MapSource: osm8 (europe/germany 2), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>]),
+      [<MapSource: osm7 (europe/germany 1), n_layers: 1, min_zoom:5, max_zoom:18>,
+       <MapSource: osm8 (europe/germany 2), n_layers: 1, min_zoom:5, max_zoom:18>]),
      ('/europe/switzerland',
       [],
-      [<MapSource: osm9 (europe/switzerland), url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:5, max_zoom:18>])]
+      [<MapSource: osm9 (europe/switzerland), n_layers: 1, min_zoom:5, max_zoom:18>])]
 
     """
     def get_first_folder(path):
@@ -85,39 +85,13 @@ class MapSourceException(Exception):
     pass
 
 
-class MapSource(object):
+class MapLayer(object):
     """
-    object storing all information on how to access the tiles
-    of a certain map
+    A MapSource can contain multiple layers.
+    A layer contains all information on how to access the tiles.
     """
-
-    def __init__(self, id, name, tile_url, folder="", bbox=None, min_zoom=1, max_zoom=17):
-        """
-        Args:
-            id (str): unique identifier (e.g. filename)
-            name (str): display name
-            tile_url (str): url of the format "http://mymap.xyz/tiles/{$z}/{$x}/{$y}"
-             where z is zoom level, and x and y the tile coordinates respectively.
-            folder (str): folder to organize the map in (e.g. /europe/germany)
-            bbox (GeographicBB): bounding box, only load tiles within
-            min_zoom (int): minimal allowed zoom level of the map
-            max_zoom (int): maximal allowed zoom level of the map
-
-        >>> ms = MapSource.from_xml("mapsources/osm.xml")
-        >>> ms.name
-        'OSM Mapnik'
-        >>> ms.min_zoom
-        0
-        >>> ms.max_zoom
-        18
-        >>> ms.tile_url
-        'http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png'
-        """
-        self.id = id
-        self.name = name
+    def __init__(self, tile_url=None, min_zoom=1, max_zoom=17):
         self.tile_url = tile_url
-        self.folder = folder
-        self.bbox = bbox
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
 
@@ -130,6 +104,52 @@ class MapSource(object):
         'http://tile.openstreetmap.org/42/43/44.png'
         """
         return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
+
+    def __repr__(self):
+        return "<MapLayer: url:{}, min_zoom:{}, max_zoom:{}>".format(
+            self.tile_url, self.min_zoom, self.max_zoom)
+
+
+class MapSource(object):
+    """
+    A MapSource contains Meta-Information of the map.
+    Additionally it can hold one or more MapLayers which contain the information
+    on how to access the tiles.
+    """
+
+    def __init__(self, id, name, folder="", bbox=None):
+        """
+        Args:
+            id (str): unique identifier (e.g. filename)
+            name (str): display name
+            folder (str): folder to organize the map in (e.g. /europe/germany)
+            bbox (GeographicBB): bounding box, only load tiles within
+
+        >>> ms = MapSource.from_xml("mapsources/osm.xml")
+        >>> ms.name
+        'OSM Mapnik'
+        >>> ms.min_zoom
+        0
+        >>> ms.max_zoom
+        18
+        >>> ms.layers
+        [<MapLayer: url:http://tile.openstreetmap.org/{$z}/{$x}/{$y}.png, min_zoom:0, max_zoom:18>]
+        """
+        self.id = id
+        self.name = name
+        self.layers = []
+        self.folder = folder
+        self.bbox = bbox
+
+    @property
+    def min_zoom(self):
+        zoom_levels = [map_layer.min_zoom for map_layer in self.layers]
+        return min(zoom_levels)
+
+    @property
+    def max_zoom(self):
+        zoom_levels = [map_layer.max_zoom for map_layer in self.layers]
+        return max(zoom_levels)
 
     @staticmethod
     def parse_xml_boundary(xml_region):
@@ -151,6 +171,49 @@ class MapSource(object):
             return bbox
         except (KeyError, ValueError):
             raise MapSourceException("region boundaries are invalid. ")
+
+    @staticmethod
+    def parse_xml_layers(xml_layers):
+        """
+
+        Args:
+            xml_layers:
+
+        Returns:
+
+        """
+        layers = []
+        for custom_map_source in xml_layers.getchildren():
+            layers.append(MapSource.parse_xml_layer(custom_map_source))
+        return layers
+
+    @staticmethod
+    def parse_xml_layer(xml_custom_map_source):
+        """
+
+        Args:
+            xml_custom_map_source:
+
+        Returns:
+
+        """
+        map_layer = MapLayer()
+        try:
+            for elem in xml_custom_map_source.getchildren():
+                if elem.tag == 'url':
+                    map_layer.tile_url = elem.text
+                elif elem.tag == 'minZoom':
+                    map_layer.min_zoom = int(elem.text)
+                elif elem.tag == 'maxZoom':
+                    map_layer.max_zoom = int(elem.text)
+        except ValueError:
+            raise MapSourceException("minZoom/maxZoom must be an integer. ")
+
+        if map_layer.tile_url is None:
+            raise MapSourceException("Layer requires a tile_url parameter. ")
+
+        return map_layer
+
 
     @staticmethod
     def from_xml(xml_path, mapsource_prefix=""):
@@ -178,28 +241,36 @@ class MapSource(object):
 
         """
         xmldoc = xml.etree.ElementTree.parse(xml_path).getroot()
-        attrs = {}
+
+        map_id = os.path.splitext(os.path.basename(xml_path))[0]
+        map_name = map_id
+        map_folder = re.sub("^" + re.escape(mapsource_prefix), "", os.path.dirname(xml_path))
+        bbox = None
+        layers = None
+
         for elem in xmldoc.getchildren():
-            attrs[elem.tag] = elem
+            if elem.tag == 'id':
+                map_id = elem.text
+            elif elem.tag == 'name':
+                map_name = elem.text
+            elif elem.tag == 'folder':
+                map_folder = elem.text
+            elif elem.tag == 'region':
+                bbox = MapSource.parse_xml_boundary(elem)
+            elif elem.tag == 'layers':
+                layers = MapSource.parse_xml_layers(elem)
 
-        try:
-            # id defaults to filename
-            map_id = attrs['id'].text if 'id' in attrs else os.path.splitext(os.path.basename(xml_path))[0]
-            # folder defaults to relative path.
-            map_folder = attrs['folder'].text if 'folder' in attrs else re.sub("^" + re.escape(mapsource_prefix),
-                                                                          "", os.path.dirname(xml_path))
-            bbox = MapSource.parse_xml_boundary(attrs["region"]) if "region" in attrs else None
-            map_folder = "" if map_folder is None else map_folder
+        if map_folder is None:
+            map_folder = "" # fallback if bad specification in xml
+        if layers is None:  # layers tag not found, expect url etc. in main xmldoc
+            layers = [MapSource.parse_xml_layer(xmldoc)]
 
-            return MapSource(map_id, attrs['name'].text, attrs['url'].text, map_folder, bbox=bbox,
-                             min_zoom=int(attrs['minZoom'].text), max_zoom=int(attrs['maxZoom'].text))
-        except KeyError:
-            raise MapSourceException("Mapsource XML does not contain all required attributes. ")
-        except ValueError:
-            raise MapSourceException("minZoom/maxZoom must be an integer. ")
+        ms = MapSource(map_id, map_name, map_folder, bbox=bbox)
+        ms.layers = layers
+        return ms
 
     def __repr__(self):
-        return "<MapSource: {} ({}), url:{}, min_zoom:{}, max_zoom:{}>".format(
-            self.id, self.name, self.tile_url, self.min_zoom, self.max_zoom)
+        return "<MapSource: {} ({}), n_layers: {}, min_zoom:{}, max_zoom:{}>".format(
+            self.id, self.name, len(self.layers), self.min_zoom, self.max_zoom)
 
 

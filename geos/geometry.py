@@ -267,7 +267,7 @@ class GridCoordinate(metaclass=ABCMeta):
 
 
 class TileCoordinate(GridCoordinate):
-    """ Represents a coordinate in a worldwide tile grid. """
+    """ Represents a coordinate in a worldwide tile grid. (aka the google-system)"""
 
     def __init__(self, zoom, x, y):
         super(TileCoordinate, self).__init__(zoom, x, y)

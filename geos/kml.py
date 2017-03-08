@@ -390,13 +390,16 @@ class KMLRegion(KMLMap):
 
         if zoom >= mapsource.min_zoom:
             for tc in rc.get_tiles():
-                self.add_ground_overlay(tc)
+                for map_layer in mapsource.layers:
+                    if map_layer.min_zoom <= zoom <= map_layer.max_zoom:
+                        self.add_ground_overlay(tc, map_layer)
+
         if zoom < mapsource.max_zoom:
             for rc_child in rc.zoom_in():
                 self.add_network_link(rc_child)
 
-    def add_ground_overlay(self, tile_coords):
-        tile_url = self.mapsource.get_tile_url(tile_coords.zoom, tile_coords.x, tile_coords.y)
+    def add_ground_overlay(self, tile_coords, map_layer):
+        tile_url = map_layer.get_tile_url(tile_coords.zoom, tile_coords.x, tile_coords.y)
         self.add_elem(kml_ground_overlay(tile_coords, tile_url))
 
     def add_network_link(self, region_coords):
