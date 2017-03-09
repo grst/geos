@@ -310,5 +310,5 @@ if (!String.prototype.format) {
 
 $("#print").click(function() {
     center = map.getView().getCenter();
-    window.open("/print/kompass/{0}/{1}/map.pdf".format(center[0], center[1]))
+    window.open("/print/osm_mapnik_multilayer/{0}/{1}/map.pdf".format(center[0], center[1]))
 });

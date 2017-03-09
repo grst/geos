@@ -50,7 +50,10 @@ def print_map(map_source, x, y, zoom=14, width=297, height=210, dpi=300, format=
 
     """
     bbox = get_print_bbox(x, y, zoom, width, height, dpi)
-    tiles = get_tiles(map_source, bbox)
+    tiles = [
+        get_tiles(tile_layer, bbox) for tile_layer in map_source.layers if
+        tile_layer.min_zoom <= zoom <= tile_layer.max_zoom
+    ]
     img = stitch_map(tiles, width, height, bbox, dpi)
     outfile = NamedTemporaryFile(delete=False)
     img.save(outfile, format, quality=100, dpi=(dpi, dpi))
@@ -88,8 +91,8 @@ def get_print_bbox(x, y, zoom, width, height, dpi):
     return tile_bb
 
 
-def download_tile(map_source, zoom, x, y):
-    tile_url = map_source.get_tile_url(zoom, x, y)
+def download_tile(map_layer, zoom, x, y):
+    tile_url = map_layer.get_tile_url(zoom, x, y)
     tmp_file, headers = urllib.request.urlretrieve(tile_url)
     return (x, y), tmp_file
 
@@ -98,7 +101,7 @@ def _download_tile_wrapper(args):
     return download_tile(*args)
 
 
-def get_tiles(map_source, bbox, n_workers=N_DOWNLOAD_WORKERS):
+def get_tiles(map_layer, bbox, n_workers=N_DOWNLOAD_WORKERS):
     """
     Download tiles.
 
@@ -115,14 +118,14 @@ def get_tiles(map_source, bbox, n_workers=N_DOWNLOAD_WORKERS):
     tiles = {}
     try:
         for (x, y), tmp_file in p.imap_unordered(_download_tile_wrapper, zip(
-                itertools.repeat(map_source),
+                itertools.repeat(map_layer),
                 itertools.repeat(bbox.zoom),
                 *zip(*bboxiter(bbox)))):
             app.logger.info("Downloaded tile x={}, y={}, z={}".format(x, y, bbox.zoom))
             tiles[(x,y)] = tmp_file
     except URLError as e:
-        raise MapPrintError("Error downloading tile x={}, y={}, z={} for map {}: {}".format(
-            x, y, bbox.zoom, map_source.id, e.reason))
+        raise MapPrintError("Error downloading tile x={}, y={}, z={} for layer {}: {}".format(
+            x, y, bbox.zoom, map_layer, e.reason))
 
     return tiles
 
@@ -142,12 +145,15 @@ def stitch_map(tiles, width, height, bbox, dpi):
 
     """
     size = (int(width * dpi_to_dpmm(dpi)), int(height * dpi_to_dpmm(dpi)))
-    img = Image.new("RGB", size)
-    for (x, y), tile_path in tiles.items():
-        tile = Image.open(tile_path)
-        img.paste(tile, ((x - bbox.min.x) * TILE_SIZE, (y - bbox.min.y) * TILE_SIZE))
-    add_scales_bar(img, bbox)
-    return img
+    background = Image.new('RGBA', size, (255, 255, 255))
+    for layer in tiles:
+        layer_img = Image.new("RGBA", size)
+        for (x, y), tile_path in layer.items():
+            tile = Image.open(tile_path)
+            layer_img.paste(tile, ((x - bbox.min.x) * TILE_SIZE, (y - bbox.min.y) * TILE_SIZE))
+        background = Image.alpha_composite(background, layer_img)
+    add_scales_bar(background, bbox)
+    return background.convert("RGB")
 
 
 def add_scales_bar(img, bbox):
