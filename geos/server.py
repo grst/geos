@@ -1,4 +1,4 @@
-from flask import Response, render_template, send_file
+from flask import Response, render_template, send_file, jsonify
 from geos.kml import *
 from geos.print import print_map
 from geos import app
@@ -18,25 +18,48 @@ def kml_response(kml_map):
 
 @app.route('/')
 def index():
-    tile_urls = {
-        map_source.id : "" for id, map_source in app.config["mapsources"].items()
-    }
-    return render_template("index.html", tile_urls=tile_urls)
+    return render_template("index.html")
 
 
-@app.route("/mapsources.json")
-def map_sources():
-    pass
+@app.route("/maps.json")
+def maps_json():
+    """
+    Generates a json object which serves as bridge between
+    the web interface and the map source collection.
+
+    All attributes relevant for openlayers are converted into
+    JSON and served through this route.
+
+    Returns:
+        Response: All map sources as JSON object.
+    """
+    map_sources = {
+        id: {
+                "id": map_source.id,
+                "name": map_source.name,
+                "folder": map_source.folder,
+                "layers": [
+                    {
+                        "min_zoom": layer.min_zoom,
+                        "max_zoom": layer.max_zoom,
+                        "tile_url": layer.tile_url.replace("$", ""),
+                    } for layer in map_source.layers
+                    ]
+
+            } for id, map_source in app.config["mapsources"].items()
+        }
+    return jsonify(map_sources)
 
 
 @app.route('/print/<map_source>/<x>/<y>/map.pdf')
 def map_to_pdf(map_source, x, y):
     """
+    Generate a PDF at the given position.
 
     Args:
-        map_source:
-        lon: mercator (EPSG:4326) x
-        lat: mercator (EPSG:4326) y
+        map_source: id of the map source to print.
+        x: Center of the Map in mercator projection (EPSG:4326), x-coordinate
+        y: Center of the Map in mercator projection (EPSG:4326), y-coordinate
 
     Returns:
 

@@ -390,6 +390,7 @@ class KMLRegion(KMLMap):
 
         if zoom >= mapsource.min_zoom:
             for tc in rc.get_tiles():
+                # add ground overlay for all active layers
                 for map_layer in mapsource.layers:
                     if map_layer.min_zoom <= zoom <= map_layer.max_zoom:
                         self.add_ground_overlay(tc, map_layer)

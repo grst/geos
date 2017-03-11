@@ -87,8 +87,15 @@ class MapSourceException(Exception):
 
 class MapLayer(object):
     """
+    The layer object contained in a MapSource.
+
     A MapSource can contain multiple layers.
     A layer contains all information on how to access the tiles.
+
+    Args:
+        tile_url: URL to the tiles which {$z}, {$x} and {$y} as placeholders.
+        min_zoom (int): minimal zoom level at which the layer is active
+        max_zoom (int): maximal zoom level at which the layer is active
     """
     def __init__(self, tile_url=None, min_zoom=1, max_zoom=17):
         self.tile_url = tile_url
@@ -143,11 +150,31 @@ class MapSource(object):
 
     @property
     def min_zoom(self):
+        """
+        Get the minimal zoom level of all layers.
+
+        Returns:
+            int: the minimum of all zoom levels of all layers
+
+        Raises:
+            ValueError: if no layers exist
+
+        """
         zoom_levels = [map_layer.min_zoom for map_layer in self.layers]
         return min(zoom_levels)
 
     @property
     def max_zoom(self):
+        """
+        Get the maximal zoom level of all layers.
+
+        Returns:
+            int: the maximum of all zoom levels of all layers
+
+        Raises:
+            ValueError: if no layers exist
+
+        """
         zoom_levels = [map_layer.max_zoom for map_layer in self.layers]
         return max(zoom_levels)
 
@@ -175,11 +202,13 @@ class MapSource(object):
     @staticmethod
     def parse_xml_layers(xml_layers):
         """
+        Get the MapLayers from an XML element
 
         Args:
-            xml_layers:
+            xml_layers (Element): The <layers> tag as XML Element
 
         Returns:
+            list of MapLayer:
 
         """
         layers = []
@@ -190,11 +219,14 @@ class MapSource(object):
     @staticmethod
     def parse_xml_layer(xml_custom_map_source):
         """
+        Get one MapLayer from an XML element
 
         Args:
-            xml_custom_map_source:
+            xml_custom_map_source (Element): The <customMapSource> element tag wrapped
+               in a <layers> tag as XML Element
 
         Returns:
+            MapLayer:
 
         """
         map_layer = MapLayer()
@@ -214,7 +246,6 @@ class MapSource(object):
 
         return map_layer
 
-
     @staticmethod
     def from_xml(xml_path, mapsource_prefix=""):
         """
@@ -228,13 +259,18 @@ class MapSource(object):
               directory.
 
         Note:
-            The Information is read from the xml
-            <id>, <folder>, <name>, <url>, <minZoom>, <maxZoom> tags. If <id> is
-            not available it defaults to the xml file basename. If <folder> is not available
-            if defaults to the folder of the xml file with the `mapsource_prefix` removed.
+            The Meta-Information is read from the xml
+            <id>, <folder>, <name> tags. If <id> is not available it defaults
+            to the xml file basename. If <folder> is not available if defaults to
+            the folder of the xml file with the `mapsource_prefix` removed.
+
+            The function first tries <url>, <minZoom>, <maxZoom> from <customMapSource>
+            tags within the <layers> tag. If the <layers> tag is not available,
+            the function tries to find <url>, <minZoom> and <maxZoom> on the top level.
+            If none of thie information is found, a MapSourceException is raised. 
 
         Returns:
-            MapSource object.
+            MapSource:
 
         Raises:
             MapSourceException: when the xml file could not be parsed properly.
