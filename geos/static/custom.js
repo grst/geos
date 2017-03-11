@@ -298,7 +298,7 @@ var currentMap;
 
 function activateMap(mapSource) {
     currentMap = mapSource;
-    $('#map li a.active').removeClass('active');
+    $('#map li.active').removeClass('active');
     $('#' + mapSource.id).addClass('active');
     console.log(mapSource.name);
     layers = map.getLayers();
@@ -318,13 +318,21 @@ function activateMap(mapSource) {
 }
 
 $(document).ready(function () {
+    $('.navbar-nav').click(function () {
+        $('.navbar-inverse .in').collapse('hide');
+    });
+
+    $('.navbar-toggle').click(function () {
+        $('.childMenu.in').collapse('hide');
+    });
+
     //download and process map sources
     $.getJSON('/maps.json', function (tmpMapSources) {
         //data is the JSON string
         mapSources = tmpMapSources;
         $.each(mapSources, function (mapId, mapSource) {
-            $li = $("<li>");
-            $a = $("<a>", {'href': "#", 'id': mapSource.id}).html(mapSource.name)
+            $li = $("<li>", {'id': mapSource.id});
+            $a = $("<a>", {'href': "#"}).html(mapSource.name)
             $a.click(activateMap(mapSource));
             $li.append($a);
             $("#maps").append($li);
@@ -349,7 +357,7 @@ $(document).ready(function () {
     // listener for printing
     $("#print").click(function () {
         center = map.getView().getCenter();
-        window.open("/print/{0}/{1}/{2}/map.pdf".format(currentMap.id [0], center[1]))
+        window.open("/print/{0}/{1}/{2}/map.pdf".format(currentMap.id, center[0], center[1]))
     });
 
 });

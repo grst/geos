@@ -1,52 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Google Earth Overlay Server</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<link rel="stylesheet" href="static/bootstrap/bootstrap.min.css" media="screen">
-<link rel="stylesheet" href="static/bootstrap/bootstrap-select.min.css" media="screen">
-<link rel="stylesheet" href="static/openlayer/ol.css" type="text/css">
-<link rel="stylesheet" href="static/custom.css" type="text/css">
-<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>
-<script src="static/openlayer/ol.js" type="text/javascript"></script>
+    <meta charset="utf-8">
+    <title>Google Earth Overlay Server</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <link rel="stylesheet" href="static/bootstrap/bootstrap.min.css" media="screen">
+    <link rel="stylesheet" href="static/bootstrap/bootstrap-select.min.css" media="screen">
+    <link rel="stylesheet" href="static/openlayer/ol.css" type="text/css">
+    <link rel="stylesheet" href="static/custom.css" type="text/css">
+    <!--<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList"></script>-->
+    <script src="static/openlayer/ol.js" type="text/javascript"></script>
 </head>
 <body>
-<nav class="navbar navbar-inverse navbar-fixed-top">
+<div class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
+            <button type="button" class="navbar-toggle" data-toggle="collapse"
+                    data-target=".navbar-collapse.parentMenu">
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="#">GEOS</a>
         </div>
-        <div id="navbar" class="navbar-collapse collapse">
+
+        <div class="collapse navbar-collapse parentMenu">
             <ul class="nav navbar-nav">
                 <li><a href="/kml-master.kml">Open in Google Earth (KML)</a></li>
                 <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Map<span class="caret"></span></a>
-                <ul class="dropdown-menu" id="maps">
-                </ul>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Map<span class="caret"></span></a>
+                    <ul class="dropdown-menu" id="maps"></ul>
+                </li>
+                <li><a data-toggle="collapse" data-target=".navbar-collapse-measure">Measure</a></li>
+                <li><a data-toggle="collapse" data-target=".navbar-collapse-print">Print</a></li>
+            </ul>
+        </div>
+
+        <div class="collapse navbar-collapse-measure childMenu">
+            <ul class="nav navbar-nav">
+                <div class="btn-toolbar">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-primary" id="measure-distance">distance</button>
+                        <button type="button" class="btn btn-default" id="measure-area">area</button>
+                    </div>
+                    <button type="button" class="btn btn-default" id="measure-clear">clear</button>
+                    <button type="button" class="btn btn-default" id="measure-done">done</button>
+                </div>
+            </ul>
+        </div>
+        <div class="collapse navbar-collapse-print childMenu">
+            <ul class="nav navbar-nav">
                 <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Measure<span class="caret"></span></a>
-                <ul class="dropdown-menu" id="type_select">
-                    <li><a class="measure-type" href="#" data-value="line">distance</a></li>
-                    <li><a class="measure-type" href="#" data-value="area">area</a></li>
-                </ul>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Paper Format<span class="caret"></span></a>
+                    <ul class="dropdown-menu" id="print-size">
+                        <li class="active"><a href="#" data-width="297" data-height="210">A4 landscape</a></li>
+                        <li><a href="#" data-width="420" data-height="297">A3 landscape</a></li>
+                    </ul>
                 </li>
-                <li><a id="print" href="#">Print</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                       aria-expanded="false">Zoom Level<span class="caret"></span></a>
+                    <ul class="dropdown-menu" id="print-zoom">
+                        <li class="active"><a href="#" data-zoom="13">13</a></li>
+                        <li><a href="#" data-width="420" data-zoom="14">14</a></li>
+                    </ul>
                 </li>
+                <div class="btn-toolbar">
+                    <button type="button" class="btn btn-default" id="print-print">print</button>
+                    <button type="button" class="btn btn-default" id="print-done">done</button>
+                </div>
             </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="https://github.com/grst/geos">@github</a></li>
-            </ul>
-        </div><!--/.nav-collapse -->
+        </div>
+        <!--/.nav-collapse -->
     </div>
-</nav>
+</div>
+
 
 <div id="map"></div>
 <script src="static/jquery/jquery-1.10.2.min.js"></script>
