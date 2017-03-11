@@ -1,130 +1,22 @@
-var wgs84Sphere = new ol.Sphere(6378137);
-
-var raster = new ol.layer.Tile({
-    source: new ol.source.XYZ({
-        url: 'http://ec1.cdn.ecmaps.de/WmsGateway.ashx.jpg?Experience=kompass&MapStyle=KOMPASS%20Touristik&TileX={x}&TileY={y}&ZoomLevel={z}',
-        crossOrigin: 'anonymous'
-    })
-});
-
-var source = new ol.source.Vector();
-
-var vector = new ol.layer.Vector({
-    source: source,
-    style: new ol.style.Style({
-        fill: new ol.style.Fill({
-            color: 'rgba(255, 255, 255, 0.2)'
-        }),
-        stroke: new ol.style.Stroke({
-            color: '#ffcc33',
-            width: 2
-        }),
-        image: new ol.style.Circle({
-            radius: 7,
-            fill: new ol.style.Fill({
-                color: '#ffcc33'
-            })
-        })
-    })
-});
-
-
+//////////////// GLOBAL FUNCTION DEFINITIONS ////////////////////////////
 /**
- * Currently drawn feature.
- * @type {ol.Feature}
+ * implement a String.format function similar to the one
+ * known from python.
  */
-var sketch;
+if (!String.prototype.format) {
+    String.prototype.format = function () {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function (match, number) {
+            return typeof args[number] != 'undefined'
+                ? args[number]
+                : match
+                ;
+        });
+    };
+}
 
 
-/**
- * The help tooltip element.
- * @type {Element}
- */
-var helpTooltipElement;
-
-
-/**
- * Overlay to show the help messages.
- * @type {ol.Overlay}
- */
-var helpTooltip;
-
-
-/**
- * The measure tooltip element.
- * @type {Element}
- */
-var measureTooltipElement;
-
-
-/**
- * Overlay to show the measurement.
- * @type {ol.Overlay}
- */
-var measureTooltip;
-
-
-/**
- * Message to show when the user is drawing a polygon.
- * @type {string}
- */
-var continuePolygonMsg = 'Click to continue drawing the polygon';
-
-
-/**
- * Message to show when the user is drawing a line.
- * @type {string}
- */
-var continueLineMsg = 'Click to continue drawing the line';
-
-
-/**
- * Handle pointer move.
- * @param {ol.MapBrowserEvent} evt The event.
- */
-var pointerMoveHandler = function (evt) {
-    if (evt.dragging) {
-        return;
-    }
-    /** @type {string} */
-    var helpMsg = 'Click to start drawing';
-
-    if (sketch) {
-        var geom = (sketch.getGeometry());
-        if (geom instanceof ol.geom.Polygon) {
-            helpMsg = continuePolygonMsg;
-        } else if (geom instanceof ol.geom.LineString) {
-            helpMsg = continueLineMsg;
-        }
-    }
-
-    helpTooltipElement.innerHTML = helpMsg;
-    helpTooltip.setPosition(evt.coordinate);
-
-    helpTooltipElement.classList.remove('hidden');
-};
-
-
-var map = new ol.Map({
-    layers: [raster, vector],
-    target: 'map',
-    view: new ol.View({
-        center: ol.proj.fromLonLat([37.41, 8.82]),
-        zoom: 4
-    })
-});
-
-map.on('pointermove', pointerMoveHandler);
-
-map.getViewport().addEventListener('mouseout', function () {
-    helpTooltipElement.classList.add('hidden');
-});
-
-var measureType = 'line'
-
-var draw; // global so we can remove it later
-
-
+/////////////// DRAWING-RELATED FUNCTIONS //////////////////////////////
 /**
  * Format length output.
  * @param {ol.geom.LineString} line The line.
@@ -174,6 +66,7 @@ var formatArea = function (polygon) {
     }
     return output;
 };
+
 
 function addInteraction() {
     var type = (measureType == 'area' ? 'Polygon' : 'LineString');
@@ -278,37 +171,185 @@ function createMeasureTooltip() {
     map.addOverlay(measureTooltip);
 }
 
-addInteraction();
+/**
+ * Handle pointer move.
+ * @param {ol.MapBrowserEvent} evt The event.
+ */
+var pointerMoveHandler = function (evt) {
+    if (evt.dragging) {
+        return;
+    }
+    /** @type {string} */
+    var helpMsg = 'Click to start drawing';
 
-$("#maps li a.map-link").click(function () {
-    new_source = new ol.source.XYZ({
-        url: $(this).attr("data-url"),
-        crossOrigin: 'anonymous'
-    });
-    console.log(new_source);
-    raster.setSource(new_source);
+    if (sketch) {
+        var geom = (sketch.getGeometry());
+        if (geom instanceof ol.geom.Polygon) {
+            helpMsg = continuePolygonMsg;
+        } else if (geom instanceof ol.geom.LineString) {
+            helpMsg = continueLineMsg;
+        }
+    }
+
+    helpTooltipElement.innerHTML = helpMsg;
+    helpTooltip.setPosition(evt.coordinate);
+
+    helpTooltipElement.classList.remove('hidden');
+};
+
+
+//////////////////// GLOBAL VARIABLE DECLARATIONS /////////////////
+var wgs84Sphere = new ol.Sphere(6378137);
+
+/**
+ * vector source for drawing
+ * @type {any}
+ */
+var source = new ol.source.Vector();
+
+/**
+ * vector layer for drawing
+ * @type {any}
+ */
+var vector = new ol.layer.Vector({
+    source: source,
+    style: new ol.style.Style({
+        fill: new ol.style.Fill({
+            color: 'rgba(255, 255, 255, 0.2)'
+        }),
+        stroke: new ol.style.Stroke({
+            color: '#ffcc33',
+            width: 2
+        }),
+        image: new ol.style.Circle({
+            radius: 7,
+            fill: new ol.style.Fill({
+                color: '#ffcc33'
+            })
+        })
+    })
 });
 
-$("#type_select li a.measure-type").click(function () {
-    measureType = $(this).attr("data-value");
-    map.removeInteraction(draw);
-    addInteraction();
+// layers that persist when a new map is added.
+var persistentLayers = [vector]
+
+/**
+ * global map object
+ * @type {ol.Map}
+ */
+var map = new ol.Map({
+    layers: persistentLayers,
+    target: 'map',
+    view: new ol.View({
+        center: ol.proj.fromLonLat([37.41, 8.82]),
+        zoom: 4
+    })
 });
 
-// First, checks if it isn't implemented yet.
-if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) { 
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
+/**
+ * Currently drawn feature.
+ * @type {ol.Feature}
+ */
+var sketch;
+
+/**
+ * The help tooltip element.
+ * @type {Element}
+ */
+var helpTooltipElement;
+
+/**
+ * Overlay to show the help messages.
+ * @type {ol.Overlay}
+ */
+var helpTooltip;
+
+/**
+ * The measure tooltip element.
+ * @type {Element}
+ */
+var measureTooltipElement;
+
+/**
+ * Overlay to show the measurement.
+ * @type {ol.Overlay}
+ */
+var measureTooltip;
+
+/**
+ * Message to show when the user is drawing a polygon.
+ * @type {string}
+ */
+var continuePolygonMsg = 'Click to continue drawing the polygon';
+
+/**
+ * Message to show when the user is drawing a line.
+ * @type {string}
+ */
+var continueLineMsg = 'Click to continue drawing the line';
+
+var measureType = 'line'
+
+var draw; // global so we can remove it later
+
+
+var mapSources = [];
+var currentMap;
+
+function activateMap(mapSource) {
+    currentMap = mapSource;
+    $('#map li a.active').removeClass('active');
+    $('#' + mapSource.id).addClass('active');
+    console.log(mapSource.name);
+    layers = map.getLayers();
+    layers.clear();
+    $.each(mapSource.layers, function (i, tileLayer) {
+        tmpLayer = new ol.layer.Tile({
+            source: new ol.source.XYZ({
+                url: tileLayer.tile_url,
+                crossOrigin: 'anonymous',
+                minZoom: tileLayer.min_zoom,
+                maxZoom: tileLayer.max_zoom
+            })
+        });
+        layers.push(tmpLayer)
     });
-  };
+    layers.extend(persistentLayers);
 }
 
-$("#print").click(function() {
-    center = map.getView().getCenter();
-    window.open("/print/osm_mapnik_multilayer/{0}/{1}/map.pdf".format(center[0], center[1]))
+$(document).ready(function () {
+    //download and process map sources
+    $.getJSON('/maps.json', function (tmpMapSources) {
+        //data is the JSON string
+        mapSources = tmpMapSources;
+        $.each(mapSources, function (mapId, mapSource) {
+            $li = $("<li>");
+            $a = $("<a>", {'href': "#", 'id': mapSource.id}).html(mapSource.name)
+            $a.click(activateMap(mapSource));
+            $li.append($a);
+            $("#maps").append($li);
+        });
+        activateMap(tmpMapSources.default)
+    });
+
+    // activate drawing functions
+    map.on('pointermove', pointerMoveHandler);
+    map.getViewport().addEventListener('mouseout', function () {
+        helpTooltipElement.classList.add('hidden');
+    });
+    addInteraction();
+
+    // listener to change measure-type
+    $("#type_select li a.measure-type").click(function () {
+        measureType = $(this).attr("data-value");
+        map.removeInteraction(draw);
+        addInteraction();
+    });
+
+    // listener for printing
+    $("#print").click(function () {
+        center = map.getView().getCenter();
+        window.open("/print/{0}/{1}/{2}/map.pdf".format(currentMap.id [0], center[1]))
+    });
+
 });

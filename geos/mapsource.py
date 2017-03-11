@@ -9,7 +9,16 @@ F_SEP = "/"  # folder separator in mapsources (not necessarily == os.sep)
 
 
 def load_maps(maps_dir):
-    """Load all xml map sources from a given directory. """
+    """
+    Load all xml map sources from a given directory.
+
+    Args:
+        maps_dir: path to directory to search for maps
+
+    Returns:
+        dict of MapSource:
+
+    """
     maps_dir = os.path.abspath(maps_dir)
     maps = {}
     for root, dirnames, filenames in os.walk(maps_dir):

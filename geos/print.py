@@ -197,7 +197,7 @@ def add_scales_bar(img, bbox):
     inserts the corresponding scales bar on the map.
 
     Args:
-        img (Image): Image object to which the scales bar will be added. 
+        img (Image): Image object to which the scales bar will be added.
         bbox (TileBB): boundaries of the map
 
     """

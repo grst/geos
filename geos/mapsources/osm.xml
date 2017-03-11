@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <customMapSource>
-   <name>OSM Mapnik</name>
+   <id>default</id>
+   <name>OSM Mapnik (default)</name>
    <minZoom>0</minZoom>
    <maxZoom>18</maxZoom>
    <tileType>png</tileType>
