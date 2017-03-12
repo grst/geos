@@ -151,6 +151,7 @@ function createHelpTooltip() {
         positioning: 'center-left'
     });
     map.addOverlay(helpTooltip);
+    mapOverlays.push(helpTooltip);
 }
 
 
@@ -169,6 +170,7 @@ function createMeasureTooltip() {
         positioning: 'bottom-center'
     });
     map.addOverlay(measureTooltip);
+    mapOverlays.push(measureTooltip);
 }
 
 /**
@@ -276,6 +278,9 @@ var measureTooltipElement;
  */
 var measureTooltip;
 
+/** List of all measure overlays **/
+var mapOverlays = [];
+
 /**
  * Message to show when the user is drawing a polygon.
  * @type {string}
@@ -296,9 +301,11 @@ var draw; // global so we can remove it later
 var mapSources = [];
 var currentMap;
 
+
+
 function activateMap(mapSource) {
     currentMap = mapSource;
-    $('#map li.active').removeClass('active');
+    $('#maps li.active').removeClass('active');
     $('#' + mapSource.id).addClass('active');
     console.log(mapSource.name);
     layers = map.getLayers();
@@ -317,14 +324,40 @@ function activateMap(mapSource) {
     layers.extend(persistentLayers);
 }
 
-$(document).ready(function () {
-    $('.navbar-nav').click(function () {
-        $('.navbar-inverse .in').collapse('hide');
+function startDrawing() {
+    // activate drawing functions
+    stopDrawing();
+    map.on('pointermove', pointerMoveHandler);
+    map.getViewport().addEventListener('mouseout', function () {
+        helpTooltipElement.classList.add('hidden');
     });
+    addInteraction();
+}
 
-    $('.navbar-toggle').click(function () {
-        $('.childMenu.in').collapse('hide');
+function stopDrawing() {
+    map.un('pointermove', pointerMoveHandler);
+    map.removeInteraction(draw);
+}
+
+function removeDrawing() {
+    $.each(mapOverlays, function(i, overlay) {
+       map.removeOverlay(overlay);
     });
+    mapOverlays = [];
+    helpTooltip = false;
+    helpTooltipElement = false;
+    tmpSource = vector.getSource();
+    tmpSource.clear();
+}
+
+$(document).ready(function () {
+    // $('.navbar-nav').click(function () {
+    //     $('.navbar-inverse .in').collapse('hide');
+    // });
+    //
+    // $('.navbar-toggle').click(function () {
+    //     $('.childMenu.in').collapse('hide');
+    // });
 
     //download and process map sources
     $.getJSON('/maps.json', function (tmpMapSources) {
@@ -333,31 +366,57 @@ $(document).ready(function () {
         $.each(mapSources, function (mapId, mapSource) {
             $li = $("<li>", {'id': mapSource.id});
             $a = $("<a>", {'href': "#"}).html(mapSource.name)
-            $a.click(activateMap(mapSource));
+            $a.click(function() { activateMap(mapSource) });
             $li.append($a);
             $("#maps").append($li);
         });
         activateMap(tmpMapSources.default)
     });
 
-    // activate drawing functions
-    map.on('pointermove', pointerMoveHandler);
-    map.getViewport().addEventListener('mouseout', function () {
-        helpTooltipElement.classList.add('hidden');
-    });
-    addInteraction();
+    $("#measure").click(startDrawing);
 
     // listener to change measure-type
-    $("#type_select li a.measure-type").click(function () {
+    $("#measure-type-switch button").click(function (e) {
+        e.stopImmediatePropagation();
+        $("#measure-type-switch button").removeClass("btn-active");
+        $(this).addClass("btn-active");
         measureType = $(this).attr("data-value");
         map.removeInteraction(draw);
         addInteraction();
     });
 
+    // listener to clear drawing area
+    $("#measure-clear").click(function (e) {
+        e.stopImmediatePropagation();
+        stopDrawing();
+        removeDrawing();
+        startDrawing();
+    });
+
+    // listener to stop drawing
+    $("#measure-done").click(function (e) {
+        stopDrawing();
+    });
+
     // listener for printing
-    $("#print").click(function () {
+    $("#print-print").click(function (e) {
+        e.stopImmediatePropagation();
+        pZoom = $("#print-zoom li.active a").attr('data-zoom');
+        pWidth = $("#print-size li.active a").attr('data-width');
+        pHeight = $('#print-size li.active a').attr('data-height');
         center = map.getView().getCenter();
-        window.open("/print/{0}/{1}/{2}/map.pdf".format(currentMap.id, center[0], center[1]))
+        window.open("/print/{0}/{1}/{2}/{3}/{4}/{5}/map.pdf".format(currentMap.id, pZoom, center[0], center[1], pWidth, pHeight));
+    });
+
+
+    $("#print-size li").click(function (e) {
+        $("#print-size li.active").removeClass('active');
+        $(this).addClass('active');
+    });
+
+    $("#print-zoom li").click(function (e) {
+        $("#print-zoom li.active").removeClass('active');
+        $(this).addClass('active');
     });
 
 });

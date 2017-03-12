@@ -51,21 +51,25 @@ def maps_json():
     return jsonify(map_sources)
 
 
-@app.route('/print/<map_source>/<x>/<y>/map.pdf')
-def map_to_pdf(map_source, x, y):
+@app.route('/print/<map_source>/<zoom>/<x>/<y>/<width>/<height>/map.pdf')
+def map_to_pdf(map_source, zoom, x, y, width, height):
     """
     Generate a PDF at the given position.
 
     Args:
-        map_source: id of the map source to print.
-        x: Center of the Map in mercator projection (EPSG:4326), x-coordinate
-        y: Center of the Map in mercator projection (EPSG:4326), y-coordinate
+        map_source (str): id of the map source to print.
+        zoom (int): zoom-level to print
+        x (float): Center of the Map in mercator projection (EPSG:4326), x-coordinate
+        y (float): Center of the Map in mercator projection (EPSG:4326), y-coordinate
+        width (float): width of the pdf in mm
+        height (float): height of the pdf in mm
 
     Returns:
 
     """
     map_source = app.config["mapsources"][map_source]
-    pdf_file = print_map(map_source, float(x), float(y), format='pdf')
+    pdf_file = print_map(map_source, x=float(x), y=float(y),
+                         zoom=int(zoom), width=float(width), height=float(height), format='pdf')
     return send_file(pdf_file,
                      attachment_filename="map.pdf",
                      as_attachment=True)

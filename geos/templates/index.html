@@ -33,7 +33,7 @@
                        aria-expanded="false">Map<span class="caret"></span></a>
                     <ul class="dropdown-menu" id="maps"></ul>
                 </li>
-                <li><a data-toggle="collapse" data-target=".navbar-collapse-measure">Measure</a></li>
+                <li><a data-toggle="collapse" data-target=".navbar-collapse-measure" id="measure">Measure</a></li>
                 <li><a data-toggle="collapse" data-target=".navbar-collapse-print">Print</a></li>
             </ul>
         </div>
@@ -41,12 +41,12 @@
         <div class="collapse navbar-collapse-measure childMenu">
             <ul class="nav navbar-nav">
                 <div class="btn-toolbar">
-                    <div class="btn-group" role="group" aria-label="...">
-                        <button type="button" class="btn btn-primary" id="measure-distance">distance</button>
-                        <button type="button" class="btn btn-default" id="measure-area">area</button>
+                    <div class="btn-group" role="group" aria-label="..." id="measure-type-switch">
+                        <button type="button" data-value="line" class="btn btn-sm btn-default btn-active" id="measure-distance">distance</button>
+                        <button type="button" data-value="area" class="btn btn-sm btn-default" id="measure-area">area</button>
                     </div>
-                    <button type="button" class="btn btn-default" id="measure-clear">clear</button>
-                    <button type="button" class="btn btn-default" id="measure-done">done</button>
+                    <button type="button" class="btn btn-sm btn-default" id="measure-clear">clear</button>
+                    <button type="button" class="btn btn-sm btn-default" id="measure-done">done</button>
                 </div>
             </ul>
         </div>
@@ -65,16 +65,15 @@
                        aria-expanded="false">Zoom Level<span class="caret"></span></a>
                     <ul class="dropdown-menu" id="print-zoom">
                         <li class="active"><a href="#" data-zoom="13">13</a></li>
-                        <li><a href="#" data-width="420" data-zoom="14">14</a></li>
+                        <li><a href="#" data-zoom="14">14</a></li>
                     </ul>
                 </li>
-                <div class="btn-toolbar">
-                    <button type="button" class="btn btn-default" id="print-print">print</button>
-                    <button type="button" class="btn btn-default" id="print-done">done</button>
-                </div>
+                <li class="btn-toolbar">
+                    <button type="button" class="btn btn-default btn-sm" id="print-print">print</button>
+                    <button type="button" class="btn btn-default btn-sm" id="print-done">done</button>
+                </li>
             </ul>
         </div>
-        <!--/.nav-collapse -->
     </div>
 </div>
 

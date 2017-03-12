@@ -53,3 +53,11 @@ html, body {
     bottom: 7px;
     top: auto;
 }
+
+.childMenu .btn-toolbar {
+    padding: 5px 0;
+}
+
+.btn-active {
+    background-color: #337ab7;
+}

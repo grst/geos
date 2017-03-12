@@ -2,8 +2,6 @@
 Module for printing maps / exporting them as pdf
 """
 
-# TODO documentation
-
 from geos.geometry import *
 import urllib.request
 from urllib.error import URLError
@@ -63,7 +61,7 @@ def print_map(map_source, x, y, zoom=14, width=297, height=210, dpi=300, format=
     tiles = [
         get_tiles(tile_layer, bbox) for tile_layer in map_source.layers if
         tile_layer.min_zoom <= zoom <= tile_layer.max_zoom
-    ]
+        ]
     img = stitch_map(tiles, width, height, bbox, dpi)
     outfile = NamedTemporaryFile(delete=False)
     img.save(outfile, format, quality=100, dpi=(dpi, dpi))
@@ -97,10 +95,10 @@ def get_print_bbox(x, y, zoom, width, height, dpi):
     mercator_coords = MercatorCoordinate(x, y)
     tile_coords = mercator_coords.to_tile(zoom)
     tile_bb = GridBB(zoom,
-                     min_x=tile_coords.x - math.ceil(tiles_h/2),
-                     max_x=tile_coords.x + math.ceil(tiles_h/2),
-                     min_y=tile_coords.y - math.ceil(tiles_v/2),
-                     max_y=tile_coords.y + math.ceil(tiles_v/2))
+                     min_x=tile_coords.x - math.ceil(tiles_h / 2),
+                     max_x=tile_coords.x + math.ceil(tiles_h / 2),
+                     min_y=tile_coords.y - math.ceil(tiles_v / 2),
+                     max_y=tile_coords.y + math.ceil(tiles_v / 2))
     return tile_bb
 
 
@@ -118,9 +116,13 @@ def download_tile(map_layer, zoom, x, y):
         file: temporary file containing the downloaded image.
 
     """
-    tile_url = map_layer.get_tile_url(zoom, x, y)
-    tmp_file, headers = urllib.request.urlretrieve(tile_url)
-    return (x, y), tmp_file
+    try:
+        tile_url = map_layer.get_tile_url(zoom, x, y)
+        tmp_file, headers = urllib.request.urlretrieve(tile_url)
+        return (x, y), tmp_file
+    except URLError as e:
+        raise MapPrintError("Error downloading tile x={}, y={}, z={} for layer {}: {}".format(
+            x, y, zoom, map_layer, e.reason))
 
 
 def _download_tile_wrapper(args):
@@ -147,18 +149,12 @@ def get_tiles(map_layer, bbox, n_workers=N_DOWNLOAD_WORKERS):
 
     """
     p = Pool(n_workers)
-
     tiles = {}
-    try:
-        for (x, y), tmp_file in p.imap_unordered(_download_tile_wrapper, zip(
-                itertools.repeat(map_layer),
-                itertools.repeat(bbox.zoom),
-                *zip(*bboxiter(bbox)))):
-            app.logger.info("Downloaded tile x={}, y={}, z={}".format(x, y, bbox.zoom))
-            tiles[(x,y)] = tmp_file
-    except URLError as e:
-        raise MapPrintError("Error downloading tile x={}, y={}, z={} for layer {}: {}".format(
-            x, y, bbox.zoom, map_layer, e.reason))
+    for (x, y), tmp_file in p.imap_unordered(_download_tile_wrapper, zip(itertools.repeat(map_layer),
+                                                                         itertools.repeat(bbox.zoom),
+                                                                         *zip(*bboxiter(bbox)))):
+        app.logger.info("Downloaded tile x={}, y={}, z={}".format(x, y, bbox.zoom))
+        tiles[(x, y)] = tmp_file
 
     return tiles
 
@@ -203,13 +199,13 @@ def add_scales_bar(img, bbox):
     """
     tc = TileCoordinate(bbox.min.zoom, bbox.min.x, bbox.min.y)
     meters_per_pixel = tc.resolution()
-    one_km_bar = int(1000 * (1/meters_per_pixel))
+    one_km_bar = int(1000 * (1 / meters_per_pixel))
     col_black = (0, 0, 0)
 
     line_start = (100, img.size[1] - 100)  # px
     line_end = (line_start[0] + one_km_bar, line_start[1])
-    whiskers_left = [line_start[0], line_start[1] - 15, line_start[0], line_start[1]+15]
-    whiskers_right = [line_end[0], line_end[1] - 15, line_end[0], line_end[1]+15]
+    whiskers_left = [line_start[0], line_start[1] - 15, line_start[0], line_start[1] + 15]
+    whiskers_right = [line_end[0], line_end[1] - 15, line_end[0], line_end[1] + 15]
 
     draw = ImageDraw.Draw(img)
     draw.line([line_start, line_end], fill=col_black, width=5)
@@ -217,5 +213,3 @@ def add_scales_bar(img, bbox):
     draw.line(whiskers_right, fill=col_black, width=2)
     draw.text((line_start[0] + 10, line_start[1] + 10), fill=col_black, text="1 km")
     del draw
-
-
