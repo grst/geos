@@ -61,3 +61,23 @@ html, body {
 .btn-active {
     background-color: #337ab7;
 }
+
+@media (max-width: 767px) {
+    .childMenu {
+        margin: 0 -15px;
+        border-top: 1px solid #101010;
+        padding: 0 15px;
+    }
+
+    .childMenu .navbar-form {
+        border: none;
+        margin: 0;
+        padding: 15px;
+        clear: both;
+    }
+
+    .childMenu li {
+        clear: both;
+    }
+}
+

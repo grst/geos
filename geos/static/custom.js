@@ -350,14 +350,22 @@ function removeDrawing() {
     tmpSource.clear();
 }
 
+
 $(document).ready(function () {
-    // $('.navbar-nav').click(function () {
-    //     $('.navbar-inverse .in').collapse('hide');
-    // });
-    //
-    // $('.navbar-toggle').click(function () {
-    //     $('.childMenu.in').collapse('hide');
-    // });
+    $navMain = $('.navbar-collapse')
+    $navMain.on("click", "a:not([data-toggle])", null, function () {
+        $navMain.collapse('hide');
+    });
+    $('.btn-done').click(function () {
+        $('.childMenu.in').collapse('hide');
+        $navMain.collapse('hide');
+    })
+    $('.parentMenu').click(function() {
+        $('.childMenu.in').collapse('hide');
+    });
+    $('.navbar-toggle').click(function() {
+        $('.childMenu.in').collapse('hide');
+    })
 
     //download and process map sources
     $.getJSON('/maps.json', function (tmpMapSources) {

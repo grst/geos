@@ -40,18 +40,27 @@
 
         <div class="collapse navbar-collapse-measure childMenu">
             <ul class="nav navbar-nav">
-                <div class="btn-toolbar">
-                    <div class="btn-group" role="group" aria-label="..." id="measure-type-switch">
-                        <button type="button" data-value="line" class="btn btn-sm btn-default btn-active" id="measure-distance">distance</button>
-                        <button type="button" data-value="area" class="btn btn-sm btn-default" id="measure-area">area</button>
+                <li><a class="navbar-brand" href="#">Measure: </a></li>
+                <form class="navbar-form navbar-left">
+                    <div class="btn-toolbar">
+                        <div class="btn-group" role="group" aria-label="..." id="measure-type-switch">
+                            <button type="button" data-value="line" class="btn btn-sm btn-default btn-active"
+                                    id="measure-distance">distance
+                            </button>
+                            <button type="button" data-value="area" class="btn btn-sm btn-default" id="measure-area">
+                                area
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-default" id="measure-clear">clear</button>
+                        <button type="button" class="btn btn-sm btn-default btn-done" id="measure-done">done</button>
                     </div>
-                    <button type="button" class="btn btn-sm btn-default" id="measure-clear">clear</button>
-                    <button type="button" class="btn btn-sm btn-default" id="measure-done">done</button>
-                </div>
+                </form>
             </ul>
         </div>
         <div class="collapse navbar-collapse-print childMenu">
             <ul class="nav navbar-nav">
+
+                <li><a class="navbar-brand" href="#">Print: </a></li>
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
                        aria-expanded="false">Paper Format<span class="caret"></span></a>
@@ -68,10 +77,16 @@
                         <li><a href="#" data-zoom="14">14</a></li>
                     </ul>
                 </li>
-                <li class="btn-toolbar">
-                    <button type="button" class="btn btn-default btn-sm" id="print-print">print</button>
-                    <button type="button" class="btn btn-default btn-sm" id="print-done">done</button>
-                </li>
+                <form class="navbar-form navbar-left">
+
+                    <li class="btn-toolbar">
+
+                        <button type="button" class="btn btn-default btn-sm " id="print-print">print</button>
+                        <button type="button" class="btn btn-default btn-sm btn-done" id="print-done">done</button>
+
+                    </li>
+                </form>
+
             </ul>
         </div>
     </div>
