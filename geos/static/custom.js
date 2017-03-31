@@ -322,6 +322,7 @@ function activateMap(mapSource) {
         layers.push(tmpLayer)
     });
     layers.extend(persistentLayers);
+    handleMinMaxZoom();
 }
 
 function startDrawing() {
@@ -350,8 +351,27 @@ function removeDrawing() {
     tmpSource.clear();
 }
 
+function handleMinMaxZoom() {
+    layers = map.getLayers();
+    layers.forEach(function(layer, i, a) {
+        tmpSource = layer.getSource()
+        // 'duck typing' for source object, vector layers don't have a zoom level.
+        if(typeof tmpSource.getTileGrid === 'function') {
+            if(map.getView().getZoom() > tmpSource.getTileGrid().maxZoom ||
+                map.getView().getZoom() < tmpSource.getTileGrid().minZoom) {
+                layer.setVisible(false);
+            } else {
+                layer.setVisible(true);
+            }
+        }
+
+    });
+}
+
 
 $(document).ready(function () {
+    map.getView().on('change:resolution', handleMinMaxZoom);
+
     $navMain = $('.navbar-collapse')
     $navMain.on("click", "a:not([data-toggle])", null, function () {
         $navMain.collapse('hide');
