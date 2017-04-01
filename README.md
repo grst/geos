@@ -4,7 +4,7 @@ This is a python-based server for creating Google Earth overlays
 of tiled maps. Your can now also display maps in the web browser,
 measure distances and print maps as high-quality PDF's.
 
-![geos google earth](doc/_static/geos-ge.png)
+![geos google earth](doc/_static/ge-places.png)
 
 Developers can also use *GEOS* as a library to convert coordinates
 or to access the map printing functionality programmatically.
