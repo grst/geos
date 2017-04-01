@@ -143,9 +143,10 @@ def get_tiles(map_layer, bbox, n_workers=N_DOWNLOAD_WORKERS):
         dict of file: Dictionary mapping coordinates to temporary files.
 
         Example::
-        {
-            (x, y) : <FileHandle>
-        }
+
+            {
+                (x, y) : <FileHandle>
+            }
 
     """
     p = Pool(n_workers)
