@@ -323,6 +323,7 @@ function activateMap(mapSource) {
     });
     layers.extend(persistentLayers);
     handleMinMaxZoom();
+    updatePrintZoomLevels(mapSource);
 }
 
 function startDrawing() {
@@ -366,6 +367,14 @@ function handleMinMaxZoom() {
         }
 
     });
+}
+
+function updatePrintZoomLevels(mapSource) {
+    $('#print-zoom').empty();
+    for(var i=Math.max(5, mapSource.min_zoom); i<=mapSource.max_zoom; i++) {
+        is_active = (i == mapSource.max_zoom) ? 'class="active"' : '';
+        $('#print-zoom').append('<li {0}><a href="#" data-zoom="{1}">{2}</a></li>'.format(is_active, i, i));
+    }
 }
 
 
@@ -432,17 +441,23 @@ $(document).ready(function () {
         pZoom = $("#print-zoom li.active a").attr('data-zoom');
         pWidth = $("#print-size li.active a").attr('data-width');
         pHeight = $('#print-size li.active a').attr('data-height');
-        center = map.getView().getCenter();
-        window.open("/print/{0}/{1}/{2}/{3}/{4}/{5}/map.pdf".format(currentMap.id, pZoom, center[0], center[1], pWidth, pHeight));
+        if(pZoom === undefined) {
+            alert('Your have to choose a zoom level');
+        } else if (pWidth === undefined || pHeight === undefined) {
+            alert('You have to choose a page format');
+        } else {
+            center = map.getView().getCenter();
+            window.open("/print/{0}/{1}/{2}/{3}/{4}/{5}/map.pdf".format(currentMap.id, pZoom, center[0], center[1], pWidth, pHeight));
+        }
     });
 
 
-    $("#print-size li").click(function (e) {
+    $("#print-size").on('click', 'li', function (e) {
         $("#print-size li.active").removeClass('active');
         $(this).addClass('active');
     });
 
-    $("#print-zoom li").click(function (e) {
+    $("#print-zoom").on('click', 'li', function (e) {
         $("#print-zoom li.active").removeClass('active');
         $(this).addClass('active');
     });

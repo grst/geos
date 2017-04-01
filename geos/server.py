@@ -38,6 +38,8 @@ def maps_json():
                 "id": map_source.id,
                 "name": map_source.name,
                 "folder": map_source.folder,
+                "min_zoom": map_source.min_zoom,
+                "max_zoom": map_source.max_zoom,
                 "layers": [
                     {
                         "min_zoom": layer.min_zoom,

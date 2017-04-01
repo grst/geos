@@ -79,5 +79,11 @@ html, body {
     .childMenu li {
         clear: both;
     }
+
+    .navbar-fixed-top {
+        overflow-y: auto;
+        max-height: 100%;
+    }
+
 }
 
