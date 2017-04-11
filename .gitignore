@@ -132,3 +132,8 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+*.pyc
+# don't include third-party dependencies.
+!lib/README.md
+.DS_Store
