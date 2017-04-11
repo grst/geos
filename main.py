@@ -1,25 +1,11 @@
-"""`main` is the top level module for your Flask application."""
+#!/usr/bin/env python3
 
-# Import the Flask Framework
-from flask import Flask
-app = Flask(__name__)
-# Note: We don't need to call run() since our application is embedded within
-# the App Engine WSGI application server.
+from geos import app
+import geos.mapsource
+from geos.kml import URLFormatter
 
+HOST = "geos-web.appspot.com"
+PORT = 80
 
-@app.route('/')
-def hello():
-    """Return a friendly HTTP greeting."""
-    return 'Hello World!'
-
-
-@app.errorhandler(404)
-def page_not_found(e):
-    """Return a custom 404 error."""
-    return 'Sorry, Nothing at this URL.', 404
-
-
-@app.errorhandler(500)
-def application_error(e):
-    """Return a custom 500 error."""
-    return 'Sorry, unexpected error: {}'.format(e), 500
+app.config['url_formatter'] = URLFormatter(HOST, PORT, 'https')
+app.config['mapsources'] = geos.mapsource.load_maps('mapsources')
