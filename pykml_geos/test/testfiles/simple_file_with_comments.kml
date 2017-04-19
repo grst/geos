@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- top level comment -->
+<kml xmlns:gx="http://www.google.com/kml/ext/2.2" 
+     xmlns:atom="http://www.w3.org/2005/Atom" 
+     xmlns="http://www.opengis.net/kml/2.2">
+  <!-- sample comment 1 -->
+  <Folder>
+    <!-- sample comment 2 -->
+    <name>sample folder</name>
+  </Folder>
+</kml>
+<!-- ending comment -->
