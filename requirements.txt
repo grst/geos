@@ -8,4 +8,5 @@ flask
 gunicorn
 Pillow
 geos
+lxml
 
