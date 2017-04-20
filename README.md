@@ -9,8 +9,8 @@ measure distances and print maps as high-quality PDF's.
 Developers can also use *GEOS* as a library to convert coordinates
 or to access the map printing functionality programmatically.
 
-## **NEW**: geos-web
-Use GEOS on the web on [geos-web.appspot.com](http://geos-web.appspot.com/). 
+## **NEW**: [geos-web](http://geos-web.appspot.com/)
+Use GEOS on the web without installation on [geos-web.appspot.com](http://geos-web.appspot.com/). 
 Note that for legal reasons, the public version comes with a very limited set of maps. 
 You still can [install and use](https://grst.github.io/geos) GEOS locally with full flexibility!
 
