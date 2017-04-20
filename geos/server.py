@@ -1,15 +1,9 @@
-from flask import Response, render_template, send_file, jsonify, session
+from flask import Response, render_template, send_file, jsonify
 from geos.kml import *
 from geos.print import print_map
 from geos import app
 import geos.mapsource
-
-
-def get_mapsources():
-    if 'powerup' in session:
-        return app.config["mapsources_powerup"]
-    else:
-        return app.config["mapsources"]
+from geos.geos_web_tools import get_mapsources
 
 
 def kml_response(kml_map):
@@ -22,12 +16,6 @@ def kml_response(kml_map):
 
     """
     return Response(kml_map.get_kml(), mimetype=kml_map.MIME_TYPE)
-
-
-@app.route('/powerup42')
-def powerup_maps():
-    session["powerup"] = True 
-    return index()
 
 
 @app.route('/')
