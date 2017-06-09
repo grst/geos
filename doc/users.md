@@ -22,6 +22,8 @@ pip install -e geos
 ## Usage
 ```
 usage: geos [-h] [-m MAPSOURCE] [-H HOST] [-P PORT]
+            [--display-host DISPLAY_HOST] [--display-port DISPLAY_PORT]
+            [--display-scheme DISPLAY_SCHEME]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -30,11 +32,19 @@ optional arguments:
                         [default: integrated mapsources]
   -H HOST, --host HOST  Hostname of the Flask app [default localhost]
   -P PORT, --port PORT  Port for the Flask app [default 5000]
-
+  --display-host DISPLAY_HOST
+                        Hostname used for self-referencing links [defaults to
+                        Flask hostname]
+  --display-port DISPLAY_PORT
+                        Port used for self-referencing links [defaults to
+                        Flask port]
+  --display-scheme DISPLAY_SCHEME
+                        URI-scheme used for self-referencing links [default
+                        http]
 ```
 
 To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start.
-Note, that by default, the webserver is only reachable locally. You can adjust this using the `-H` prameter.
+Note, that by default, the webserver is only reachable locally. You can adjust this using the `-H` parameter. If you use GEOS with a public url, e.g. `http://geos.example.com`, you can adjust the public hostname, port and scheme using the `--display-*` arguments. 
 
 Open your browser and navigate to the URL. A web page will displaying a map and a menu bar.
 You can use the menu bar to choose between maps. Per default, it only contains the
