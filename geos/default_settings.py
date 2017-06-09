@@ -3,7 +3,7 @@ Default settings that will be loaded in the Flask app.config dict.
 """
 
 # Werkzeug debugger
-DEBUG = True
+DEBUG = False
 
 HOST = 'localhost'
 PORT = 5000
