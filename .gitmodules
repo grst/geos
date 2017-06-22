@@ -1,6 +1,6 @@
 [submodule "mapsources_powerup"]
 	path = mapsources_powerup
-	url = git@github.com:grst/mapsources.git
+	url = https://github.com/grst/mapsources.git 
 [submodule "mapsources"]
 	path = mapsources
-	url = git@github.com:grst/mapsources.git
+	url = https://github.com/grst/mapsources.git 
