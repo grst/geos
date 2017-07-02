@@ -6,7 +6,7 @@ from geos.geos_web_tools import GeosWebUrlFormatter
 
 app.config.from_object('geos.default_settings')
 
-HOST = "geos-web.appspot.com"
+HOST = "geos-web.herokuapp.com"
 PORT = 80
 
 app.config['url_formatter'] = GeosWebUrlFormatter(HOST, PORT, 'https')
