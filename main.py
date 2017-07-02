@@ -7,7 +7,7 @@ from geos.geos_web_tools import GeosWebUrlFormatter
 app.config.from_object('geos.default_settings')
 
 HOST = "geos-web.herokuapp.com"
-PORT = 80
+PORT = 443
 
 app.config['url_formatter'] = GeosWebUrlFormatter(HOST, PORT, 'https')
 app.config['mapsources'] = geos.mapsource.load_maps('mapsources')
