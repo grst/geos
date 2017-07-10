@@ -5,4 +5,4 @@ deploy:
 	git push heroku heroku:master
 
 update_maps: 
-	git submodule update --recursive --remote
+	git pull --recurse-submodules
