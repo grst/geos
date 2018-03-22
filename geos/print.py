@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw
 from geos import app
 from tempfile import NamedTemporaryFile
 from multiprocessing import Pool
+import pkg_resources
 
 TILE_SIZE = 256  # px
 # some tile servers block requests noch coming from a Browser
@@ -121,8 +122,9 @@ def download_tile(map_layer, zoom, x, y):
         tmp_file, headers = urllib.request.urlretrieve(tile_url)
         return (x, y), tmp_file
     except URLError as e:
-        raise MapPrintError("Error downloading tile x={}, y={}, z={} for layer {}: {}".format(
+        app.logger.info("Error downloading tile x={}, y={}, z={} for layer {}: {}".format(
             x, y, zoom, map_layer, e.reason))
+        return (x, y), pkg_resources.resource_filename("geos", "static/empty_tile.png")
 
 
 def _download_tile_wrapper(args):
