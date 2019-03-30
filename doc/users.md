@@ -1,5 +1,7 @@
 ## Installation
 
+Instructions for running GEOS in a docker container can be found below.
+
 ### Requirements
 GEOS is python3 only. If you don't have python, I recommend downloading
 [Anaconda Python](https://www.continuum.io/downloads).
@@ -136,3 +138,47 @@ GEOS supports Mapsources which consist of multiple layers. Such a file looks as 
    </layers>
 </customMultiLayerMapSource>
 ```
+
+### Running GEOS in a docker container
+If you are planning to run GEOS in a docker container, there is no requirement apart from having docker installed on your host. No install of python is necessary.
+
+Running GEOS involves building a GEOS image, a one-time operation, and then running a container.
+1. **Building the GEOS docker image**
+
+Building the container will likely take a few minutes and your machine may look stalled during the lengthy install of lxml. To build the image, move to the docker directory and run :
+```
+docker build -t geos .
+```
+
+2. **Running the GEOS container**
+
+Run (on a single line) :
+```
+docker run
+--rm 
+-p <server_port>:5000
+-v <server_mapsources_directory>:/opt/conda/lib/python3.7/site-packages/geos/mapsources
+geos
+geos --host 0.0.0.0 --display-host <server_ip>
+```
+
+Explanations of the options:                                                                                                                            
+
+| Option               |Meaning                         |
+|----------------------|--------------------------------|
+|```--rm```            |Remove container after execution|
+|```-p```              |Port mapping                    |
+|```-v```              |Volume mapping                  |
+|```geos```            |Name of container               |
+|```geos --host 0.0.0.0 --display-host <server_ip>```|Command line to run GEOS|
+
+You will have to substitute the following variables with a value that is relevant to your setup :
+
+| Variable                          |Meaning                                         |Example|
+|-----------------------------------|------------------------------------------------|----|
+|```<server_port>```                |Port used to reach the server                   |```5000```|
+|```<server_mapsources_directory>```|Path to the `mapsources` directory on the server|```/home/user/Documents/geos/mapsources```|
+|```<server_ip>```                  |IP adress of the server                         |```192.168.0.1``` / See note below|
+
+Note:
+* On Linux systems, ```<server_ip>``` can be found by running ```ip route get 1 | awk '{print $NF;exit}'```
