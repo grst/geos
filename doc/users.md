@@ -145,7 +145,7 @@ If you are planning to run GEOS in a docker container, there is no requirement a
 Running GEOS involves building a GEOS image, a one-time operation, and then running a container.
 1. **Building the GEOS docker image**
 
-Building the container will likely take a few minutes and your machine may look stalled during the lengthy install of lxml. To build the image, move to the docker directory and run :
+Building the container will likely take a few minutes and your machine may look stalled during the lengthy install of lxml. To build the image, move to the main directory (where the Dockerfile is) and run :
 ```
 docker build -t geos .
 ```
@@ -161,16 +161,6 @@ docker run
 geos
 geos --host 0.0.0.0 --display-host <server_ip>
 ```
-
-Explanations of the options:                                                                                                                            
-
-| Option               |Meaning                         |
-|----------------------|--------------------------------|
-|```--rm```            |Remove container after execution|
-|```-p```              |Port mapping                    |
-|```-v```              |Volume mapping                  |
-|```geos```            |Name of container               |
-|```geos --host 0.0.0.0 --display-host <server_ip>```|Command line to run GEOS|
 
 You will have to substitute the following variables with a value that is relevant to your setup :
 
