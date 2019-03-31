@@ -1,6 +1,6 @@
 ## Installation
 
-Instructions for running GEOS in a docker container can be found below.
+Instructions for running GEOS in a docker container can be found [below](https://github.com/tostt/geos/blob/docker/doc/users.md#running-geos-in-a-docker-container).
 
 ### Requirements
 GEOS is python3 only. If you don't have python, I recommend downloading
