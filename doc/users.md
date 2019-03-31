@@ -162,7 +162,7 @@ geos
 geos --host 0.0.0.0 --display-host <server_ip>
 ```
 
-You will have to substitute the following variables with a value that is relevant to your setup :
+You will have to substitute the following variables with values that are relevant to your setup :
 
 | Variable                          |Meaning                                         |Example|
 |-----------------------------------|------------------------------------------------|----|
