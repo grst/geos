@@ -142,10 +142,10 @@ GEOS supports Mapsources which consist of multiple layers. Such a file looks as 
 ### Running GEOS in a docker container
 If you are planning to run GEOS in a docker container, there is no requirement apart from having docker installed on your host. No install of python is necessary.
 
-Running GEOS involves building a GEOS image, a one-time operation, and then running a container.
+Running GEOS involves building a GEOS image, a one-time operation, and running a container when needed.
 1. **Building the GEOS docker image**
 
-Building the container will likely take a few minutes and your machine may look stalled during the lengthy install of lxml. To build the image, move to the main directory (where the Dockerfile is) and run :
+Building the image will likely take a few minutes and your machine may look stalled during the lengthy install of lxml. To build the image, move to the main directory (where the Dockerfile is) and run :
 ```
 docker build -t geos .
 ```
