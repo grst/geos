@@ -143,21 +143,46 @@ GEOS supports Mapsources which consist of multiple layers. Such a file looks as 
 If you are planning to run GEOS in a docker container, there is no requirement apart from having docker installed on your host. No install of python is necessary.
 
 Running GEOS involves building a GEOS image, a one-time operation, and running a container when needed.
-1. **Building the GEOS docker image**
 
-Building the image will likely take a few minutes and your machine may look stalled during the lengthy install of lxml. To build the image, move to the main directory (where the Dockerfile is) and run :
+1. **Getting a Dockerfile**
+
+When running GEOS in docker, you have 2 options:
+- running the GEOS pip package release
+- running GEOS built from source code
+
+This choice will lead to using different Dockerfiles, as explained below.
+
+1.a) Option 1: using the pip release of GEOS
+
+You do not need to download the GEOS sources. You only need to create a Dockerfile with the following contents:
+
+```
+FROM continuumio/miniconda3
+RUN pip install geos Pillow
+```
+
+1.b) Option 2: building GEOS from source code
+
+Download the GEOS sources with
+```
+$ git clone https://github.com/grst/geos.git
+```
+The sources already include a Dockerfile.
+
+2. **Building the GEOS docker image**
+
+To build the docker image, move to the directory where the Dockerfile is and run :
 ```
 docker build -t geos .
 ```
-
-2. **Running the GEOS container**
+3. **Running the GEOS container**
 
 Run (on a single line) :
 ```
 docker run
---rm 
+--rm
 -p <server_port>:5000
--v <server_mapsources_directory>:/opt/conda/lib/python3.7/site-packages/geos/mapsources
+--mount type=bind,source=<server_mapsources_directory>,target=/opt/conda/lib/python3.7/site-packages/geos/mapsources
 geos
 geos --host 0.0.0.0 --display-host <server_ip>
 ```
