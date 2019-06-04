@@ -1,5 +1,7 @@
 # Google Earth Overlay Server (GEOS)
 
+![readthedocs](https://readthedocs.org/projects/geos/badge/?version=latest&style=flat)
+
 This is a python-based server for creating Google Earth overlays
 of tiled maps. Your can now also display maps in the web browser,
 measure distances and print maps as high-quality PDF's.
@@ -10,15 +12,15 @@ Developers can also use *GEOS* as a library to convert coordinates
 or to access the map printing functionality programmatically.
 
 ## **NEW**: [geos-web](http://geos.gsturm.eu/)
-Use GEOS on the web without installation on [geos.gsturm.eu](http://geos.gsturm.eu/). 
-Note that for legal reasons, the public version comes with a very limited set of maps. 
-You still can [install and use](https://grst.github.io/geos) GEOS locally with full flexibility!
+Use GEOS on the web without installation on [geos.gsturm.eu](http://geos.gsturm.eu/).
+Note that for legal reasons, the public version comes with a very limited set of maps.
+You still can [install and use](https://geos.readthedocs.io/en/latest/) GEOS locally with full flexibility!
 
-## Documentation is available at [https://grst.github.io/geos](https://grst.github.io/geos)
-* [Installation](https://grst.github.io/geos/users.html#installation)
-* [Usage](https://grst.github.io/geos/users.html#usage)
-* [Adding and Creating Maps](https://grst.github.io/geos/users.html#more-maps)
-* [Developer's Guide](https://grst.github.io/geos/developers.html)
+## Documentation is available at [https://geos.readthedocs.io/en/latest/](https://grst.github.io/geos)
+* [Installation](https://geos.readthedocs.io/en/latest/users.html#installation)
+* [Usage](https://geos.readthedocs.io/en/latest/users.html#usage)
+* [Adding and Creating Maps](https://geos.readthedocs.io/en/latest/users.html#more-maps)
+* [Developer's Guide](https://geos.readthedocs.io/en/latest/developers.html)
 
 ## Aspirations
 Can GEOS become a unified interface for converting, displaying and using web maps?
