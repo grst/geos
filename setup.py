@@ -13,7 +13,7 @@ setup(
     keywords=['maps', 'google earth', 'overlay', 'map printing'],  # arbitrary keywords
     license='GPLv3',
     install_requires=[
-        'flask', 'lxml'
+        'flask', 'lxml', 'pillow'
     ],
     classifiers=[],
     entry_points={
