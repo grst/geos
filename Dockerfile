@@ -1,5 +1,4 @@
 FROM continuumio/miniconda3
-RUN pip install Pillow
 COPY . .
 RUN python setup.py install 
 RUN export GEOS_VERSION="$(python setup.py --version)" \
