@@ -157,7 +157,7 @@ This choice will lead to using different Dockerfiles, as explained below.
 You do not need to download the GEOS sources. You only need to create a Dockerfile with the following contents:
 ```dockerfile
 FROM continuumio/miniconda3
-RUN pip install geos Pillow
+RUN pip install geos
 ```
 
 **Option b):** building GEOS from source code
