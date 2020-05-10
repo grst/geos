@@ -314,7 +314,7 @@ function activateMap(mapSource) {
         tmpLayer = new ol.layer.Tile({
             source: new ol.source.XYZ({
                 url: tileLayer.tile_url,
-                crossOrigin: 'anonymous',
+                crossOrigin: null,
                 minZoom: tileLayer.min_zoom,
                 maxZoom: tileLayer.max_zoom
             })
