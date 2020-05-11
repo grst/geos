@@ -116,7 +116,7 @@ class MapLayer(object):
         Fill the placeholders of the tile url with zoom, x and y.
 
         >>> ms = MapSource.from_xml("mapsources/osm.xml")
-        >>> ms.get_tile_url(42, 43, 44)
+        >>> ms.layers[0].get_tile_url(42, 43, 44)
         'http://tile.openstreetmap.org/42/43/44.png'
         """
         return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
@@ -143,7 +143,7 @@ class MapSource(object):
 
         >>> ms = MapSource.from_xml("mapsources/osm.xml")
         >>> ms.name
-        'OSM Mapnik'
+        'OSM Mapnik (default)'
         >>> ms.min_zoom
         0
         >>> ms.max_zoom
