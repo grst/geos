@@ -15,7 +15,7 @@ setup(
     install_requires=[
         'flask', 'lxml', 'pillow'
     ],
-    extras_requires=dict(
+    extras_require=dict(
         test=['pytest']
     ),
     classifiers=[],
