@@ -15,6 +15,9 @@ setup(
     install_requires=[
         'flask', 'lxml', 'pillow'
     ],
+    extras_requires=dict(
+        test=['pytest']
+    ),
     classifiers=[],
     entry_points={
         'console_scripts': ['geos=geos.scripts.runserver:run_app'],
