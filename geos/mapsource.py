@@ -129,7 +129,7 @@ class MapLayer(object):
     @property
     def get_tile_urls(self):
         if(len(self.server_parts) == 0):
-            return self.tile_url.replace("$", "")
+            return [self.tile_url.replace("$", "")]
         else:
             cur_tile_url = []
             for s in self.server_parts:
