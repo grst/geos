@@ -313,7 +313,7 @@ function activateMap(mapSource) {
     $.each(mapSource.layers, function (i, tileLayer) {
         tmpLayer = new ol.layer.Tile({
             source: new ol.source.XYZ({
-                url: tileLayer.tile_url,
+                urls: tileLayer.tile_url,
                 crossOrigin: null,
                 minZoom: tileLayer.min_zoom,
                 maxZoom: tileLayer.max_zoom

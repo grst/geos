@@ -44,7 +44,7 @@ def maps_json():
                     {
                         "min_zoom": layer.min_zoom,
                         "max_zoom": layer.max_zoom,
-                        "tile_url": layer.tile_url.replace("$", ""),
+                        "tile_url": layer.get_tile_urls,
                     } for layer in map_source.layers
                     ]
 

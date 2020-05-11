@@ -4,6 +4,7 @@ import os
 from pprint import pprint
 from geos.geometry import GeographicBB
 import re
+import random
 
 F_SEP = "/"  # folder separator in mapsources (not necessarily == os.sep)
 
@@ -110,6 +111,7 @@ class MapLayer(object):
         self.tile_url = tile_url
         self.min_zoom = min_zoom
         self.max_zoom = max_zoom
+        self.server_parts = []
 
     def get_tile_url(self, zoom, x, y):
         """
@@ -119,8 +121,21 @@ class MapLayer(object):
         >>> ms.layers[0].get_tile_url(42, 43, 44)
         'http://tile.openstreetmap.org/42/43/44.png'
         """
-        return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
+        if(len(self.server_parts) == 0):
+            return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y})
+        else:
+            return self.tile_url.format(**{"$z": zoom, "$x": x, "$y": y, "$serverpart": random.choice(self.server_parts)})
 
+    @property
+    def get_tile_urls(self):
+        if(len(self.server_parts) == 0):
+            return [self.tile_url.replace("$", "")]
+        else:
+            cur_tile_url = []
+            for s in self.server_parts:
+                cur_tile_url.append(self.tile_url.replace("{$serverpart}", s).replace("$", ""))
+        return cur_tile_url
+        
     def __repr__(self):
         return "<MapLayer: url:{}, min_zoom:{}, max_zoom:{}>".format(
             self.tile_url, self.min_zoom, self.max_zoom)
@@ -247,6 +262,8 @@ class MapSource(object):
                     map_layer.min_zoom = int(elem.text)
                 elif elem.tag == 'maxZoom':
                     map_layer.max_zoom = int(elem.text)
+                elif elem.tag == 'serverParts':
+                    map_layer.server_parts += str(elem.text).split()
         except ValueError:
             raise MapSourceException("minZoom/maxZoom must be an integer. ")
 
