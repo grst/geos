@@ -215,7 +215,7 @@ class MapSource(object):
         """
         try:
             bounds = {}
-            for boundary in xml_region.getchildren():
+            for boundary in xml_region:
                 bounds[boundary.tag] = float(boundary.text)
             bbox = GeographicBB(min_lon=bounds["west"], max_lon=bounds["east"],
                                 min_lat=bounds["south"], max_lat=bounds["north"])
@@ -236,7 +236,7 @@ class MapSource(object):
 
         """
         layers = []
-        for custom_map_source in xml_layers.getchildren():
+        for custom_map_source in xml_layers:
             layers.append(MapSource.parse_xml_layer(custom_map_source))
         return layers
 
@@ -310,7 +310,7 @@ class MapSource(object):
         bbox = None
         layers = None
 
-        for elem in xmldoc.getchildren():
+        for elem in xmldoc:
             if elem.tag == 'id':
                 map_id = elem.text
             elif elem.tag == 'name':
