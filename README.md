@@ -35,5 +35,7 @@ If that sounds as awesome to you as it does to me, feel free to fork and create
 pull requests or simply drop me a message.
 
 ## Alternatives
-If you want to setup `geos` on a server, you might as well consider [MapProxy](https://mapproxy.org), which is much more professional but a bit more challenging to configure.
+ * If you want to setup `geos` on a server, you might as well consider [MapProxy](https://mapproxy.org), which is much more professional but a bit more challenging to configure.
+ * If you are looking for a software to explore and print maps locally, consider
+   using [QGIS](https://www.qgis.org/de/site/). 
 
