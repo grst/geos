@@ -146,82 +146,83 @@ Running GEOS involves building a GEOS image, a one-time operation, and running a
 
 1. **Getting a Dockerfile**
 
-When running GEOS in docker, you have 2 options:
-- running the GEOS pip package release
-- running GEOS built from source code
+   When running GEOS in docker, you have 2 options:
+   - running the GEOS pip package release
+   - running GEOS built from source code
 
-This choice will lead to using different Dockerfiles, as explained below.
+   This choice will lead to using different Dockerfiles, as explained below.
 
-**Option a):** using the pip release of GEOS
+   **Option a):** using the pip release of GEOS
 
-You do not need to download the GEOS sources. You only need to create a Dockerfile with the following contents:
-```dockerfile
-FROM continuumio/miniconda3
-RUN pip install geos
-```
+   You do not need to download the GEOS sources. You only need to create a Dockerfile with the following contents:
+   ```dockerfile
+   FROM continuumio/miniconda3
+   RUN pip install geos
+   ```
 
-**Option b):** building GEOS from source code
+   **Option b):** building GEOS from source code
 
-The GEOS sources already contain the appropriate Dockerfile. Download the sources with
-```sh
-git clone https://github.com/grst/geos.git
-```
+   The GEOS sources already contain the appropriate Dockerfile. Download the sources with
+   ```sh
+   git clone https://github.com/grst/geos.git
+   ```
 
 2. **Building the GEOS docker image**
 
-To build the docker image, move to the directory where the Dockerfile is and run :
-```sh
-docker build -t geos .
-```
+   To build the docker image, move to the directory where the Dockerfile is and run :
+   ```sh
+   docker build -t geos .
+   ```
+
 3. **Running the GEOS container**
 
-Run (on a single line) :
-```sh
-docker run
---rm
--p <server_port>:5000
---mount type=bind,source=<server_mapsources_directory>,target=/opt/conda/lib/python3.7/site-packages/geos/mapsources
-geos
-geos --host 0.0.0.0 --display-host <server_ip>
-```
+   Run (on a single line) :
+   ```sh
+   docker run \
+   --rm \
+   -p <server_port>:5000 \
+   --mount type=bind,source=<server_mapsources_directory>,target=/mapsources
+   geos \
+   geos --host 0.0.0.0 --display-host <server_ip> --mapsource /mapsources
+   ```
 
-You will have to substitute the following variables with values that are relevant to your setup :
+   You will have to substitute the following variables with values that are relevant to your setup :
 
-| Variable                          |Meaning                                         |Example|
-|-----------------------------------|------------------------------------------------|----|
-|`<server_port>`                |Port used to reach the server                   |`5000`|
-|`<server_mapsources_directory>`|Path to the `mapsources` directory on the server|`/home/user/me/mapsources`|
-|`<server_ip>`                  |IP adress of the server                         |`192.168.0.1` / See note below|
+   | Variable                          |Meaning                                         |Example|
+   |-----------------------------------|------------------------------------------------|----|
+   |`<server_port>`                    |Port used to reach the server                   |`5000`|
+   |`<server_mapsources_directory>`    |Path to the `mapsources` directory on the server|`/home/user/me/mapsources`|
+   |`<server_ip>`                      |IP adress of the server                         |`192.168.0.1` / See note below|
 
-Note:
-* On Linux systems, ```<server_ip>``` can be found by running ```ip route get 1 | awk '{print $NF;exit}'```
+   Note:
+   * On Linux systems, ```<server_ip>``` can be found by running ```ip route get 1 | awk '{print $NF;exit}'```
 
 4. **Bonus: Building and running the GEOS container with docker-compose**
 
-For ease of use, you can completely avoid using the docker *build* and *run* commands by creating a **docker-compose.yml** file next to the Dockerfile. Its contents can be similar to the following :
+   For ease of use, you can completely avoid using the docker *build* and *run* commands by creating a **docker-compose.yml** file next to the Dockerfile. Its contents can be similar to the following :
 
-```docker-compose
-version: '3.7'
-services:
-    geos:
-        build: .
-        image: geos
-        container_name: geos
-        ports:
-            - '5000:5000'
-        volumes:
-            - //c/Users/me/Documents/mapsources:/opt/conda/lib/python3.7/site-packages/geos/mapsources
-        command: geos --host 0.0.0.0
-```
-Note: The above file demonstrates the use of a Windows path for the *mapsources* host directory.
+   ```docker-compose
+   version: '3.7'
+   services:
+       geos:
+	   build: .
+	   image: geos
+	   container_name: geos
+	   ports:
+	       - '5000:5000'
+	   volumes:
+	       - //c/Users/me/Documents/mapsources:/opt/conda/lib/python3.7/site-packages/geos/mapsources
+	   command: geos --host 0.0.0.0
+   ```
+   Note: The above file demonstrates the use of a Windows path for the *mapsources* host directory.
 
-You can then start GEOS by issuing
-```sh
-docker-compose up
-```
-This command will take care of building the GEOS image if it does not exist locally.
+   You can then start GEOS by issuing
+   ```sh
+   docker-compose up
+   ```
+   This command will take care of building the GEOS image if it does not exist locally.
 
-You can stop GEOS by issuing
-```sh
-docker-compose down
-```
+   You can stop GEOS by issuing
+   ```sh
+   docker-compose down
+   ```
