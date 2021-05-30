@@ -185,9 +185,7 @@ Running GEOS involves building a GEOS image, a one-time operation, and running a
    geos \
    geos --host 0.0.0.0 --display-host <server_ip> --mapsource /mapsources
    ```
-
    You will have to substitute the following variables with values that are relevant to your setup :
-
    | Variable                          |Meaning                                         |Example|
    |-----------------------------------|------------------------------------------------|----|
    |`<server_port>`                    |Port used to reach the server                   |`5000`|
