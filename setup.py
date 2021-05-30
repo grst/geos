@@ -16,7 +16,8 @@ setup(
         'flask', 'lxml', 'pillow'
     ],
     extras_require=dict(
-        test=['pytest']
+        test=['pytest'],
+        docs=['sphinx-markdown-tables'],
     ),
     classifiers=[],
     entry_points={
