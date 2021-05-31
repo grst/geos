@@ -186,14 +186,14 @@ Running GEOS involves building a GEOS image, a one-time operation, and running a
    geos --host 0.0.0.0 --display-host <server_ip> --mapsource /mapsources
    ```
    You will have to substitute the following variables with values that are relevant to your setup :
-   | Variable                          |Meaning                                         |Example|
-   |-----------------------------------|------------------------------------------------|----|
-   |`<server_port>`                    |Port used to reach the server                   |`5000`|
-   |`<server_mapsources_directory>`    |Path to the `mapsources` directory on the server|`/home/user/me/mapsources`|
-   |`<server_ip>`                      |IP adress of the server                         |`192.168.0.1` / See note below|
-
-   Note:
-   * On Linux systems, ```<server_ip>``` can be found by running ```ip route get 1 | awk '{print $NF;exit}'```
+   
+   - `<server_port>`: Port used to reach the server.   
+     For example, `5000`
+   - `<server_mapsources_directory>`: Path to the `mapsources` directory on the server.   
+     For example `/home/user/me/mapsources`
+   - `<server_ip>`: IP adress of the server.   
+     For example, `192.168.0.1`.   
+     On Linux systems, `<server_ip>` can be found by running `ip route get 1 | awk '{print $NF;exit}'`
 
 4. **Bonus: Building and running the GEOS container with docker-compose**
 
