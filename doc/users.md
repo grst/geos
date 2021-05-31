@@ -187,40 +187,49 @@ Running GEOS involves building a GEOS image, a one-time operation, and running a
    ```
    You will have to substitute the following variables with values that are relevant to your setup :
    
-   - `<server_port>`: Port used to reach the server.<br/>
+   - `<server_port>` : Port used to reach the server.<br/>
      For example, `5000`
-   - `<server_mapsources_directory>`: Path to the `mapsources` directory on the server.<br/>
+   - `<server_mapsources_directory>` : Path to the `mapsources` directory on the server.<br/>
      For example `/home/user/me/mapsources`
-   - `<server_ip>`: IP adress of the server.<br/>
+   - `<server_ip>` : IP adress of the server.<br/>
      For example, `192.168.0.1`.<br/>
      On Linux systems, `<server_ip>` can be found by running `ip route get 1 | awk '{print $NF;exit}'`
 
-4. **Bonus: Building and running the GEOS container with docker-compose**
+### Running GEOS with Docker Compose
 
-   For ease of use, you can completely avoid using the docker *build* and *run* commands by creating a **docker-compose.yml** file next to the Dockerfile. Its contents can be similar to the following :
+For ease of use, you can completely replace the 3 steps required for _Running GEOS in a docker container_ by creating a **docker-compose.yml** file.
+Its contents can be similar to the following :
 
-   ```docker-compose
-   version: '3.7'
-   services:
-       geos:
-	   build: .
-	   image: geos
-	   container_name: geos
-	   ports:
-	       - '5000:5000'
-	   volumes:
-	       - //c/Users/me/Documents/mapsources:/opt/conda/lib/python3.7/site-packages/geos/mapsources
-	   command: geos --host 0.0.0.0
-   ```
-   Note: The above file demonstrates the use of a Windows path for the *mapsources* host directory.
+```docker-compose
+version: '3.7'
+services:
+  geos:
+    build: https://github.com/grst/geos.git
+    container_name: geos
+    ports:
+      - '<server_port>:5000'
+    volumes:
+      - <server_mapsources_directory>:/mapsources
+    command: geos --host 0.0.0.0 --display-host <server_ip> --mapsource /mapsources
+```
+You will have to substitute the following variables with values that are relevant to your setup :
 
-   You can then start GEOS by issuing
-   ```sh
-   docker-compose up
-   ```
-   This command will take care of building the GEOS image if it does not exist locally.
+- `<server_port>` : Port used to reach the server.<br/>
+  For example, `5000`
+- `<server_mapsources_directory>` : Path to the `mapsources` directory on the server.<br/>
+  For example `./mapsources`
+- `<server_ip>` : IP adress of the server.<br/>
+  For example, `192.168.0.1`.<br/>
+  On Linux systems, `<server_ip>` can be found by running `ip route get 1 | awk '{print $NF;exit}'`
 
-   You can stop GEOS by issuing
-   ```sh
-   docker-compose down
-   ```
+
+You can then start GEOS by issuing
+```sh
+docker-compose up -d
+```
+This command will take care of building the GEOS image if it does not exist locally.
+
+You can stop GEOS by issuing
+```sh
+docker-compose down
+```
