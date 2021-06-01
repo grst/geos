@@ -1,25 +1,25 @@
 ## Installation
 
-Instructions for running GEOS in a docker container can be found [below](#running-geos-in-a-docker-container).
+Instructions for running _GEOS_ in a docker container can be found [below](#running-geos-in-a-docker-container).
 
 ### Using Python
-GEOS is python3 only. If you don't have python, I recommend downloading
+_GEOS_ is python3 only. If you don't have python, I recommend downloading
 [Anaconda Python](https://www.continuum.io/downloads).
 
-Usually, it's easiest to install *GEOS* through `pip`:
+Usually, it's easiest to install _GEOS_ through `pip`:
 
 ```
 pip install geos
 ```
 
-Alternatively, you can install *GEOS* from the github sources:
+Alternatively, you can install _GEOS_ from the github sources:
 ```
 git clone git@github.com:grst/geos.git
 cd geos
 pip install -e geos
 ```
 
-To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start.
+To try out _GEOS_, simply open a terminal, type `geos` and hit enter! A web server will start.
 
 ### Using Docker-compose
 
@@ -41,7 +41,7 @@ If you prefer, you can install Docker compose and avoid additional instalation s
 
    You will have to substitute the following variables with values that are relevant to your host machine :
 
-   - `<host_port>` : Port used for accessing *GEOS* on the host machine.<br/>
+   - `<host_port>` : Port used for accessing _GEOS_ on the host machine.<br/>
      For example, `5000`
    - `<host_mapsources_directory>` : Path to the `mapsources` directory on the host machine.<br/>
      For example `./mapsources`
@@ -50,15 +50,15 @@ If you prefer, you can install Docker compose and avoid additional instalation s
      For example, `192.168.0.1`, `localhost`, or `geos.example.com`.<br/>
      On Linux systems, the numeric IP address can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
 
-2. Start GEOS by issuing
+2. Start _GEOS_ by issuing
    ```sh
    docker-compose up -d
    ```
-   This command will take care of building the *GEOS* image if it does not exist locally.
+   This command will take care of building the _GEOS_ image if it does not exist locally.
 
-3. Open *GEOS* in a browser at `http://<host_address>:<host_port>`.
+3. Open _GEOS_ in a browser at `http://<host_address>:<host_port>`.
 
-4. You can stop *GEOS* by issuing
+4. You can stop _GEOS_ by issuing
    ```sh
    docker-compose down
    ```
@@ -87,7 +87,7 @@ optional arguments:
                         http]
 ```
 
-Note, that by default, the webserver is only reachable locally. You can adjust this using the `-host` parameter. If you use GEOS with a public url, e.g. `http://geos.example.com`, you can adjust the public hostname, port and scheme using the `--display-*` arguments. 
+Note, that by default, the webserver is only reachable locally. You can adjust this using the `-host` parameter. If you use _GEOS_ with a public url, e.g. `http://geos.example.com`, you can adjust the public hostname, port and scheme using the `--display-*` arguments. 
 
 Open your browser and navigate to the URL. A web page will displaying a map and a menu bar.
 You can use the menu bar to choose between maps. Per default, it only contains the
@@ -108,12 +108,12 @@ Note, that some maps do not provide tiles below a certain zoom level.
 In that case you have to zoom in for the tiles to load.
 
 ## More maps!
-*GEOS* uses XML [Mapsource](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources)
+_GEOS_ uses XML [Mapsource](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources)
 files, to tell the server where it can find the tiles. I started a collection of such mapsources in a
 [dedicated Github repository](https://github.com/grst/mapsources).
 
 You can specify a directory containing xml mapsources using the `-m` command line parameter.
-*GEOS* will load all maps from that directory and put them into the kml file.
+_GEOS_ will load all maps from that directory and put them into the kml file.
 
 So, to start off, you can do the following:
 ```
@@ -125,21 +125,21 @@ Of course, you can create your own maps, too! If you do so, it would be cool if 
  e.g. by creating a pull request to the [mapsources repo](https://github.com/grst/mapsources).
 
 ## Creating Mapsources
-Essentially, the mapsources for *GEOS* are based on the [MOBAC Mapsource XML Format](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources).
+Essentially, the mapsources for _GEOS_ are based on the [MOBAC Mapsource XML Format](http://mobac.sourceforge.net/wiki/index.php/Custom_XML_Map_Sources#Simple_custom_map_sources).
 
-A minimal Mapsource file for *GEOS* looks like this:
+A minimal Mapsource file for _GEOS_ looks like this:
 ```xml
 <customMapSource>
     <name>Example Map</name>  <!-- Name of the map as displayed in Google Earth -->
     <minZoom>5</minZoom>      <!-- minimal zoom level supported by the web map -->
     <maxZoom>15</maxZoom>     <!-- maximal zoom level supported by the web map -->
-    <!-- url: tells GEOS where to find the tiles. Tile URLs contain three
+    <!-- url: tells _GEOS_ where to find the tiles. Tile URLs contain three
     Parameters: zoom, x and y -->
     <url>http://example.com/map?zoom={$z}&amp;x={$x}&amp;y={$y}</url>
 </customMapSource>
 ```
 
-Additonally, *GEOS* currently supports the following optional parameters:
+Additonally, _GEOS_ currently supports the following optional parameters:
 ```xml
     <id>example_id</id>                    <!-- unique map identifier. If not specified,
                                                 the filename will be used as id -->
@@ -156,7 +156,7 @@ Additonally, *GEOS* currently supports the following optional parameters:
 ```
 
 ### Multi Layer Mapsources
-GEOS supports Mapsources which consist of multiple layers. Such a file looks as follows:
+_GEOS_ supports Mapsources which consist of multiple layers. Such a file looks as follows:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
