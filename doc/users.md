@@ -1,20 +1,18 @@
 ## Installation
 
-Instructions for running _GEOS_ in a docker container can be found [below](#running-geos-in-a-docker-container).
-
 ### Using Python
 _GEOS_ is python3 only. If you don't have python, I recommend downloading
 [Anaconda Python](https://www.continuum.io/downloads).
 
 Usually, it's easiest to install _GEOS_ through `pip`:
 
-```
+```sh
 pip install geos
 ```
 
 Alternatively, you can install _GEOS_ from the github sources:
-```
-git clone git@github.com:grst/geos.git
+```sh
+git clone https://github.com/grst/geos.git
 cd geos
 pip install -e geos
 ```
@@ -25,7 +23,7 @@ To try out _GEOS_, simply open a terminal, type `geos` and hit enter! A web serv
 
 If you prefer, you can install Docker compose and avoid additional instalation steps.
 
-1. Create a **docker-compose.yml** file using the following template :
+1. Create a `docker-compose.yml` file using the following template :
    ```docker-compose
    version: '3.7'
    services:
@@ -41,14 +39,14 @@ If you prefer, you can install Docker compose and avoid additional instalation s
 
    You will have to substitute the following variables with values that are relevant to your host machine :
 
-   - `<host_port>` : Port used for accessing _GEOS_ on the host machine.<br/>
+   - `<host_port>` : Port used for accessing _GEOS_ on the host machine <br/>
      For example, `5000`
-   - `<host_mapsources_directory>` : Path to the `mapsources` directory on the host machine.<br/>
-     For example `./mapsources`
+   - `<host_mapsources_directory>` : Path to the `mapsources` directory on the host machine <br/>
+     For example `./mapsources` <br/>
      Don't worry if you don't have any mapsources yet.
-   - `<host_address>` : adress of the host machine.<br/>
-     For example, `192.168.0.1`, `localhost`, or `geos.example.com`.<br/>
-     On Linux systems, the numeric IP address can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
+   - `<host_address>` : adress of the host machine <br/>
+     For example, `192.168.0.1`, `localhost`, or `geos.example.com` <br/>
+     On Linux systems, the host machine's IP address can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`.
 
 2. Start _GEOS_ by issuing
    ```sh
