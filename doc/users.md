@@ -193,7 +193,7 @@ Running GEOS involves building a GEOS image, a one-time operation, and running a
      For example `/home/user/me/mapsources`
    - `<server_ip>` : IP adress of the server.<br/>
      For example, `192.168.0.1`.<br/>
-     On Linux systems, `<server_ip>` can be found by running `ip route get 1 | awk '{print $NF;exit}'`
+     On Linux systems, `<server_ip>` can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
 
 ### Running GEOS with Docker Compose
 
@@ -220,7 +220,7 @@ You will have to substitute the following variables with values that are relevan
   For example `./mapsources`
 - `<server_ip>` : IP adress of the server.<br/>
   For example, `192.168.0.1`.<br/>
-  On Linux systems, `<server_ip>` can be found by running `ip route get 1 | awk '{print $NF;exit}'`
+  On Linux systems, `<server_ip>` can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
 
 
 You can then start GEOS by issuing
