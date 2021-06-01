@@ -2,11 +2,10 @@
 
 Instructions for running GEOS in a docker container can be found [below](#running-geos-in-a-docker-container).
 
-### Requirements
+### Using Python
 GEOS is python3 only. If you don't have python, I recommend downloading
 [Anaconda Python](https://www.continuum.io/downloads).
 
-### Install GEOS
 Usually, it's easiest to install *GEOS* through `pip`:
 
 ```
@@ -20,6 +19,49 @@ cd geos
 pip install -e geos
 ```
 
+To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start.
+
+### Using Docker-compose
+
+If you prefer, you can install Docker compose and avoid additional instalation steps.
+
+1. Create a **docker-compose.yml** file using the following template :
+   ```docker-compose
+   version: '3.7'
+   services:
+     geos:
+       build: https://github.com/grst/geos.git
+       container_name: geos
+       ports:
+	 - '<host_port>:5000'
+       volumes:
+	 - <host_mapsources_directory>:/mapsources
+       command: geos --host 0.0.0.0 --display-host <host_address> --mapsource /mapsources
+   ```
+
+   You will have to substitute the following variables with values that are relevant to your host machine :
+
+   - `<host_port>` : Port used for accessing *GEOS* on the host machine.<br/>
+     For example, `5000`
+   - `<host_mapsources_directory>` : Path to the `mapsources` directory on the host machine.<br/>
+     For example `./mapsources`
+     Don't worry if you don't have any mapsources yet.
+   - `<host_address>` : adress of the host machine.<br/>
+     For example, `192.168.0.1`, `localhost`, or `geos.example.com`.<br/>
+     On Linux systems, the numeric IP address can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
+
+2. Start GEOS by issuing
+   ```sh
+   docker-compose up -d
+   ```
+   This command will take care of building the *GEOS* image if it does not exist locally.
+
+3. Open *GEOS* in a browser at `http://<host_address>:<host_port>`.
+
+4. You can stop *GEOS* by issuing
+   ```sh
+   docker-compose down
+   ```
 
 ## Usage
 ```
@@ -45,8 +87,7 @@ optional arguments:
                         http]
 ```
 
-To try out *GEOS*, simply open a terminal, type `geos` and hit enter! A web server will start.
-Note, that by default, the webserver is only reachable locally. You can adjust this using the `-H` parameter. If you use GEOS with a public url, e.g. `http://geos.example.com`, you can adjust the public hostname, port and scheme using the `--display-*` arguments. 
+Note, that by default, the webserver is only reachable locally. You can adjust this using the `-host` parameter. If you use GEOS with a public url, e.g. `http://geos.example.com`, you can adjust the public hostname, port and scheme using the `--display-*` arguments. 
 
 Open your browser and navigate to the URL. A web page will displaying a map and a menu bar.
 You can use the menu bar to choose between maps. Per default, it only contains the
@@ -54,7 +95,6 @@ You can use the menu bar to choose between maps. Per default, it only contains t
 From the menu bar, you can also choose tools to measure, draw and print maps.
 
 ![geos-web](_static/geos_web.png)
-
 
 ### Open in Google Earth
 Choose *"Open in Google Earth (KML)"* from the menu bar to download a KML file which you can open in Google Earth.
@@ -137,99 +177,4 @@ GEOS supports Mapsources which consist of multiple layers. Such a file looks as 
        </customMapSource>
    </layers>
 </customMultiLayerMapSource>
-```
-
-### Running GEOS in a docker container
-If you are planning to run GEOS in a docker container, there is no requirement apart from having docker installed on your host. No install of python is necessary.
-
-Running GEOS involves building a GEOS image, a one-time operation, and running a container when needed.
-
-1. **Getting a Dockerfile**
-
-   When running GEOS in docker, you have 2 options:
-   - running the GEOS pip package release
-   - running GEOS built from source code
-
-   This choice will lead to using different Dockerfiles, as explained below.
-
-   **Option a):** using the pip release of GEOS
-
-   You do not need to download the GEOS sources. You only need to create a Dockerfile with the following contents:
-   ```dockerfile
-   FROM continuumio/miniconda3
-   RUN pip install geos
-   ```
-
-   **Option b):** building GEOS from source code
-
-   The GEOS sources already contain the appropriate Dockerfile. Download the sources with
-   ```sh
-   git clone https://github.com/grst/geos.git
-   ```
-
-2. **Building the GEOS docker image**
-
-   To build the docker image, move to the directory where the Dockerfile is and run :
-   ```sh
-   docker build -t geos .
-   ```
-
-3. **Running the GEOS container**
-
-   Run (on a single line) :
-   ```sh
-   docker run \
-   --rm \
-   -p <server_port>:5000 \
-   --mount type=bind,source=<server_mapsources_directory>,target=/mapsources
-   geos \
-   geos --host 0.0.0.0 --display-host <server_ip> --mapsource /mapsources
-   ```
-   You will have to substitute the following variables with values that are relevant to your setup :
-   
-   - `<server_port>` : Port used to reach the server.<br/>
-     For example, `5000`
-   - `<server_mapsources_directory>` : Path to the `mapsources` directory on the server.<br/>
-     For example `/home/user/me/mapsources`
-   - `<server_ip>` : IP adress of the server.<br/>
-     For example, `192.168.0.1`.<br/>
-     On Linux systems, `<server_ip>` can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
-
-### Running GEOS with Docker Compose
-
-For ease of use, you can completely replace the 3 steps required for _Running GEOS in a docker container_ by creating a **docker-compose.yml** file.
-Its contents can be similar to the following :
-
-```docker-compose
-version: '3.7'
-services:
-  geos:
-    build: https://github.com/grst/geos.git
-    container_name: geos
-    ports:
-      - '<server_port>:5000'
-    volumes:
-      - <server_mapsources_directory>:/mapsources
-    command: geos --host 0.0.0.0 --display-host <server_ip> --mapsource /mapsources
-```
-You will have to substitute the following variables with values that are relevant to your setup :
-
-- `<server_port>` : Port used to reach the server.<br/>
-  For example, `5000`
-- `<server_mapsources_directory>` : Path to the `mapsources` directory on the server.<br/>
-  For example `./mapsources`
-- `<server_ip>` : IP adress of the server.<br/>
-  For example, `192.168.0.1`.<br/>
-  On Linux systems, `<server_ip>` can be found by running `ip route get 1| sed 's/.* src \([0-9.]*\) .*/\1/;q'`
-
-
-You can then start GEOS by issuing
-```sh
-docker-compose up -d
-```
-This command will take care of building the GEOS image if it does not exist locally.
-
-You can stop GEOS by issuing
-```sh
-docker-compose down
 ```
