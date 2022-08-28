@@ -13,7 +13,6 @@ pip install geos
 Alternatively, you can install _GEOS_ from the github sources:
 ```sh
 git clone https://github.com/grst/geos.git
-cd geos
 pip install -e geos
 ```
 
