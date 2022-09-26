@@ -11,7 +11,7 @@ setup(
     author_email='mail@gregor-sturm.de',
     url='https://github.com/grst/geos',  # use the URL to the github repo
     keywords=['maps', 'google earth', 'overlay', 'map printing'],  # arbitrary keywords
-    license='GPLv3',
+    license_files = ('LICENSE',)
     install_requires=[
         'flask', 'lxml', 'pillow'
     ],
