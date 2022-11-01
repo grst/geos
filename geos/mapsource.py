@@ -255,7 +255,7 @@ class MapSource(object):
         """
         map_layer = MapLayer()
         try:
-            for elem in xml_custom_map_source.getchildren():
+            for elem in xml_custom_map_source:
                 if elem.tag == 'url':
                     map_layer.tile_url = elem.text
                 elif elem.tag == 'minZoom':
