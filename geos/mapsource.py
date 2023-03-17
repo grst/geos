@@ -263,7 +263,8 @@ class MapSource(object):
                 elif elem.tag == 'maxZoom':
                     map_layer.max_zoom = int(elem.text)
                 elif elem.tag == 'serverParts':
-                    map_layer.server_parts += str(elem.text).split()
+                    if elem.text is not None:
+                        map_layer.server_parts += str(elem.text).split()
         except ValueError:
             raise MapSourceException("minZoom/maxZoom must be an integer. ")
 
