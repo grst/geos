@@ -1,5 +1,8 @@
 # Google Earth Overlay Server (GEOS)
 
+> **Warning**: This project is not maintained anymore. Feel free to fork or re-use the code for whatever you like as permitted by the BSD-3-clause license. Personally, I moved on to [QGIS](https://qgis.org/) for
+> managing my maps and GPS tracks. 
+
 ![readthedocs](https://readthedocs.org/projects/geos/badge/?version=latest&style=flat)
 
 This is a python-based server for creating Google Earth overlays
