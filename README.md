@@ -2,6 +2,9 @@
 
 > **Warning**: This project is not maintained anymore. Feel free to fork or re-use the code for whatever you like as permitted by the BSD-3-clause license. Personally, I moved on to [QGIS](https://qgis.org/) for
 > managing my maps and GPS tracks. 
+>
+> If you are looking for a direct replacement for geos, consider using [kmlsuperoverlay](https://github.com/nono303/kmlsuperoverlay) by @nono303, 
+> which is a PHP reimplementation of geos and actively maintained. 
 
 ![readthedocs](https://readthedocs.org/projects/geos/badge/?version=latest&style=flat)
 
