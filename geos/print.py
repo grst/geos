@@ -9,7 +9,8 @@ from PIL import Image, ImageDraw
 from geos import app
 from tempfile import NamedTemporaryFile
 from multiprocessing import Pool
-import pkg_resources
+from importlib.resources import files
+
 
 TILE_SIZE = 256  # px
 # some tile servers block requests noch coming from a Browser
@@ -124,7 +125,9 @@ def download_tile(map_layer, zoom, x, y):
     except URLError as e:
         app.logger.info("Error downloading tile x={}, y={}, z={} for layer {}: {}".format(
             x, y, zoom, map_layer, e.reason))
-        return (x, y), pkg_resources.resource_filename("geos", "static/empty_tile.png")
+        # Use importlib.resources to get the path to the empty tile
+        empty_tile_path = str(files("geos").joinpath("static/empty_tile.png"))
+        return (x, y), empty_tile_path
 
 
 def _download_tile_wrapper(args):

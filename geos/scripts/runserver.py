@@ -7,10 +7,10 @@ Start the GEOS server from command line.
 from geos import app
 import argparse
 import geos.mapsource
-import pkg_resources
+from importlib.resources import files
 from geos.kml import URLFormatter
 
-MAPSOURCES = pkg_resources.resource_filename("geos", "mapsources")
+MAPSOURCES = str(files("geos").joinpath("mapsources"))
 
 app.config.from_object('geos.default_settings')
 

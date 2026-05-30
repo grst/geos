@@ -13,7 +13,7 @@ setup(
     keywords=['maps', 'google earth', 'overlay', 'map printing'],  # arbitrary keywords
     license_files = ('LICENSE',),
     install_requires=[
-        'flask', 'lxml', 'pillow'
+        'flask', 'lxml', 'pillow', 'flask-cors'
     ],
     extras_require=dict(
         test=['pytest'],
